@@ -121,34 +121,65 @@
       </div>
       <div class="upload-grid">
 
+        <!-- HANDWRITING -->
         <div class="upload-box" id="ub-handwriting">
           <input type="file" id="img-handwriting" accept="image/*" onchange="handleUpload('handwriting', this)" />
           <div class="upload-inner" onclick="document.getElementById('img-handwriting').click()">
             <div class="upload-icon">✍</div>
-            <div class="upload-title">Handwriting Sample</div>
-            <div class="upload-sub">5–6 lines, natural script, no corrections</div>
+            <div class="upload-title">Handwriting Sample
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Write 5–6 lines of natural cursive or print on unlined paper. Use a pen, not pencil. Write normally — no copying from a book. Include your signature at the bottom. Photograph in good light, flat on a surface, no shadows.</span>
+              </span>
+            </div>
+            <div class="upload-sub">5–6 lines · natural script · include signature</div>
             <div class="upload-meta">Module 19 · Optional</div>
             <div class="upload-preview" id="prev-handwriting"></div>
           </div>
         </div>
 
-        <div class="upload-box" id="ub-palm">
-          <input type="file" id="img-palm" accept="image/*" onchange="handleUpload('palm', this)" />
-          <div class="upload-inner" onclick="document.getElementById('img-palm').click()">
+        <!-- PALM LEFT -->
+        <div class="upload-box" id="ub-palm-left">
+          <input type="file" id="img-palm-left" accept="image/*" onchange="handleUpload('palmLeft', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-palm-left').click()">
             <div class="upload-icon">🤚</div>
-            <div class="upload-title">Palm Image</div>
-            <div class="upload-sub">Dominant hand, well-lit, palm facing camera</div>
-            <div class="upload-meta">Module 20 · Optional</div>
-            <div class="upload-preview" id="prev-palm"></div>
+            <div class="upload-title">Left Palm
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Left hand = karmic blueprint and inherited tendencies. Hold your left hand flat, fingers together, palm facing the camera. Use natural daylight or bright indoor light. No flash. Capture the full palm from wrist to fingertips, keeping the image in focus.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Flat · palm up · full hand visible</div>
+            <div class="upload-meta">Module 20 · Left Hand</div>
+            <div class="upload-preview" id="prev-palm-left"></div>
           </div>
         </div>
 
+        <!-- PALM RIGHT -->
+        <div class="upload-box" id="ub-palm-right">
+          <input type="file" id="img-palm-right" accept="image/*" onchange="handleUpload('palmRight', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-palm-right').click()">
+            <div class="upload-icon">🤚</div>
+            <div class="upload-title">Right Palm
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Right hand = your active destiny and present-life choices. Hold your right hand flat, fingers together, palm facing the camera. Use natural daylight. Capture the full palm from wrist to fingertips. Both hands together give the most complete palm reading.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Flat · palm up · full hand visible</div>
+            <div class="upload-meta">Module 20 · Right Hand</div>
+            <div class="upload-preview" id="prev-palm-right"></div>
+          </div>
+        </div>
+
+        <!-- FACE -->
         <div class="upload-box" id="ub-face">
           <input type="file" id="img-face" accept="image/*" onchange="handleUpload('face', this)" />
           <div class="upload-inner" onclick="document.getElementById('img-face').click()">
             <div class="upload-icon">◉</div>
-            <div class="upload-title">Face Photo</div>
-            <div class="upload-sub">Front-facing, natural light, neutral expression</div>
+            <div class="upload-title">Face Photo
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Take a front-facing photo in natural daylight — no filters, no sunglasses, no heavy makeup. Look straight at the camera with a neutral expression. Pull hair away from your face. The photo should show your full face clearly from chin to forehead.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Front-facing · natural light · neutral expression</div>
             <div class="upload-meta">Module 21 · Optional</div>
             <div class="upload-preview" id="prev-face"></div>
           </div>
@@ -284,12 +315,23 @@
       </div>
     </div>
 
+    <!-- PDF PREVIEW -->
+    <div class="pdf-preview-section" id="pdf-preview-section" style="display:none;">
+      <div class="pdf-preview-header">
+        <span class="pdf-preview-label">☽ PDF Preview</span>
+        <button class="btn-pdf" id="pdf-download-btn" onclick="triggerPDFDownload()">
+          <span class="pdf-icon">↓</span> Download PDF
+        </button>
+      </div>
+      <iframe id="pdf-iframe" class="pdf-iframe" src="" title="Reading PDF Preview"></iframe>
+    </div>
+
     <!-- NEW READING -->
     <div class="new-reading-row">
       <button class="btn-ghost" onclick="newReading()">← Start New Reading</button>
       <button class="btn-ghost" onclick="exportReading()">Export as Text</button>
       <button class="btn-pdf" id="pdf-btn" onclick="exportPDF()">
-        <span class="pdf-icon">↓</span> Download PDF
+        <span class="pdf-icon">↓</span> Generate PDF
       </button>
     </div>
   </div>

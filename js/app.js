@@ -150,14 +150,21 @@ function handleUpload(key, input) {
     };
 
     // Update UI
-    const box = document.getElementById(`ub-${key}`);
+    const boxId = key === 'palmLeft' ? 'ub-palm-left' : key === 'palmRight' ? 'ub-palm-right' : `ub-${key}`;
+    const box = document.getElementById(boxId);
     if (box) box.classList.add('has-file');
 
-    const prev = document.getElementById(`prev-${key}`);
+    const prevId = key === 'palmLeft' ? 'prev-palm-left' : key === 'palmRight' ? 'prev-palm-right' : `prev-${key}`;
+    const prev = document.getElementById(prevId);
     if (prev) prev.innerHTML = `
       <img src="${e.target.result}" alt="uploaded" />
       <div class="upload-status">✓ ${file.name}</div>
     `;
+
+    // For palm chips: unlock when either palm is uploaded
+    if (key === 'palmLeft' || key === 'palmRight') {
+      uploadedImages['palm'] = uploadedImages[key]; // keep backward compat
+    }
 
     renderChips(); // unlock image-req chips
   };
@@ -246,12 +253,28 @@ function buildMessages(prompt, modIds) {
     });
     content.push({ type: 'text', text: 'This is the handwriting sample for Module 19 analysis.' });
   }
-  if (modIds.includes(20) && uploadedImages.palm) {
-    content.push({
-      type: 'image',
-      source: { type: 'base64', media_type: uploadedImages.palm.type, data: uploadedImages.palm.data }
-    });
-    content.push({ type: 'text', text: 'This is the palm image for Module 20 analysis.' });
+  if (modIds.includes(20) && (uploadedImages.palmLeft || uploadedImages.palmRight || uploadedImages.palm)) {
+    if (uploadedImages.palmLeft) {
+      content.push({
+        type: 'image',
+        source: { type: 'base64', media_type: uploadedImages.palmLeft.type, data: uploadedImages.palmLeft.data }
+      });
+      content.push({ type: 'text', text: 'This is the LEFT palm image for Module 20 analysis. Left hand = karmic blueprint.' });
+    }
+    if (uploadedImages.palmRight) {
+      content.push({
+        type: 'image',
+        source: { type: 'base64', media_type: uploadedImages.palmRight.type, data: uploadedImages.palmRight.data }
+      });
+      content.push({ type: 'text', text: 'This is the RIGHT palm image for Module 20 analysis. Right hand = active destiny.' });
+    }
+    if (!uploadedImages.palmLeft && !uploadedImages.palmRight && uploadedImages.palm) {
+      content.push({
+        type: 'image',
+        source: { type: 'base64', media_type: uploadedImages.palm.type, data: uploadedImages.palm.data }
+      });
+      content.push({ type: 'text', text: 'This is the palm image for Module 20 analysis.' });
+    }
   }
   if (modIds.includes(21) && uploadedImages.face) {
     content.push({
@@ -293,11 +316,27 @@ async function runReading() {
   document.getElementById('results-meta').textContent =
     `${subject.name} · ${subject.dob} · ${modIds.length} modules · ${new Date().toLocaleTimeString()}`;
 
-  // Disable button
+  // Disable button with live progress cycling
   const btn = document.getElementById('run-btn');
   const btnText = document.getElementById('btn-text');
   btn.disabled = true;
-  btnText.textContent = 'Reading in progress...';
+
+  const progressMsgs = [
+    'Casting your birth chart...',
+    'Mapping planetary positions...',
+    'Reading your Mahadasha...',
+    'Analysing karmic patterns...',
+    'Decoding your Nakshatra...',
+    'Calculating Dasha timeline...',
+    'Running all modules...',
+    'Synthesising your blueprint...',
+  ];
+  let progIdx = 0;
+  btnText.textContent = progressMsgs[0];
+  const progInterval = setInterval(() => {
+    progIdx = (progIdx + 1) % progressMsgs.length;
+    btnText.textContent = progressMsgs[progIdx];
+  }, 2800);
 
   // Show loading
   document.getElementById('result-content').innerHTML = `
@@ -379,6 +418,7 @@ async function runReading() {
 
   btnText.textContent = 'Generate My Reading';
   btn.disabled = false;
+  clearInterval(progInterval);
   document.getElementById('progress-bar-wrap') && (document.getElementById('progress-bar-wrap').style.display = 'none');
 }
 
@@ -487,9 +527,19 @@ async function callGemini(apiKey, prompt, modIds) {
     parts.push({ inline_data: { mime_type: uploadedImages.handwriting.type, data: uploadedImages.handwriting.data } });
     parts.push({ text: 'Handwriting sample for Module 19.' });
   }
-  if (modIds.includes(20) && uploadedImages.palm) {
-    parts.push({ inline_data: { mime_type: uploadedImages.palm.type, data: uploadedImages.palm.data } });
-    parts.push({ text: 'Palm image for Module 20.' });
+  if (modIds.includes(20) && (uploadedImages.palmLeft || uploadedImages.palmRight || uploadedImages.palm)) {
+    if (uploadedImages.palmLeft) {
+      parts.push({ inline_data: { mime_type: uploadedImages.palmLeft.type, data: uploadedImages.palmLeft.data } });
+      parts.push({ text: 'LEFT palm image for Module 20. Left = karmic blueprint.' });
+    }
+    if (uploadedImages.palmRight) {
+      parts.push({ inline_data: { mime_type: uploadedImages.palmRight.type, data: uploadedImages.palmRight.data } });
+      parts.push({ text: 'RIGHT palm image for Module 20. Right = active destiny.' });
+    }
+    if (!uploadedImages.palmLeft && !uploadedImages.palmRight && uploadedImages.palm) {
+      parts.push({ inline_data: { mime_type: uploadedImages.palm.type, data: uploadedImages.palm.data } });
+      parts.push({ text: 'Palm image for Module 20.' });
+    }
   }
   if (modIds.includes(21) && uploadedImages.face) {
     parts.push({ inline_data: { mime_type: uploadedImages.face.type, data: uploadedImages.face.data } });
@@ -619,8 +669,10 @@ function showTab(id) {
 }
 
 function formatText(raw) {
-  // Sanitise first
+  // Strip raw markdown artifacts
   let text = raw
+    .replace(/^---+\s*$/gm, '')
+    .replace(/^===+\s*$/gm, '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -687,345 +739,479 @@ function newReading() {
   document.getElementById('reading-form').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── PDF Export ──
+// ── PDF Export (Full Rewrite) ──
+let _pdfBlob = null; // store for iframe preview
+
+function triggerPDFDownload() {
+  if (!_pdfBlob) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(_pdfBlob);
+  const subjectName = document.getElementById('f-name').value.trim() || 'Subject';
+  a.download = 'Jyotish-Reading-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
+  a.click();
+}
+
 async function exportPDF() {
   if (!Object.keys(readingResults).length) return;
 
   const btn = document.getElementById('pdf-btn');
   btn.disabled = true;
-  btn.innerHTML = '<span>...</span> Generating PDF';
+  btn.innerHTML = '<span>⏳</span> Building PDF...';
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  const W = 210, H = 297;
-  const marginL = 18, marginR = 18, marginT = 20, marginB = 20;
-  const contentW = W - marginL - marginR;
+    const W = 210, H = 297;
+    const mL = 16, mR = 16, mT = 18, mB = 22;
+    const cW = W - mL - mR;
 
-  // Colours
-  const BG        = [7,   5,  15];   // #07050f
-  const GOLD      = [196,169,125];   // #c4a97d
-  const GOLD_LIGHT= [232,213,163];   // #e8d5a3
-  const CREAM     = [212,201,176];   // #d4c9b0
-  const DARK_CARD = [18,  12, 35];   // module header bg
-  const RULE      = [50,  40, 80];   // subtle line colour
-  const TEAL      = [138,180,160];   // #8ab4a0 accent
+    // ── Colour palette ──
+    const BG         = [8,   5,  18];
+    const GOLD       = [196, 169, 125];
+    const GOLD_LT    = [232, 213, 163];
+    const CREAM      = [210, 200, 178];
+    const CARD_BG    = [16,  10,  32];
+    const RULE_COL   = [48,  38,  72];
+    const ACCENT     = [138, 180, 160];
+    const DIM        = [100,  88,  70];
 
-  const subjectName = document.getElementById('f-name').value.trim() || 'Subject';
-  const subjectDOB  = document.getElementById('f-dob').value.trim()  || '';
-  const today       = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'});
-  const modules     = Object.values(readingResults);
+    const subjectName = document.getElementById('f-name').value.trim() || 'Subject';
+    const subjectDOB  = document.getElementById('f-dob').value.trim() || '';
+    const today       = new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+    const modules     = Object.values(readingResults);
 
-  // ──────────── HELPERS ────────────
-  function fillPage() {
-    doc.setFillColor(...BG);
-    doc.rect(0, 0, W, H, 'F');
-  }
-
-  function goldLine(y, alpha=0.3) {
-    doc.setDrawColor(196,169,125);
-    doc.setLineWidth(0.2);
-    doc.line(marginL, y, W-marginR, y);
-  }
-
-  function starDecor(page) {
-    // tiny scattered dots for star feel
-    const positions = [[25,18],[180,30],[60,280],[155,270],[190,55],[30,240],[100,12],[170,285]];
-    doc.setFillColor(255,255,255);
-    positions.forEach(([x,y]) => {
-      doc.circle(x, y, 0.4, 'F');
-    });
-  }
-
-  function addPageNumber(n, total) {
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...GOLD);
-    doc.text('JYOTISH  •  VEDIC MASTER READING', marginL, H-10);
-    doc.text(n + ' / ' + total, W-marginR, H-10, {align:'right'});
-  }
-
-  function wrapText(text, x, y, maxW, lineH, col, size, style) {
-    doc.setFont('helvetica', style || 'normal');
-    doc.setFontSize(size || 10);
-    doc.setTextColor(...col);
-    const lines = doc.splitTextToSize(text, maxW);
-    lines.forEach(line => {
-      if (y > H - marginB - 8) {
-        doc.addPage();
-        fillPage();
-        starDecor();
-        y = marginT + 8;
-      }
-      doc.text(line, x, y);
-      y += lineH;
-    });
-    return y;
-  }
-
-  // ──────────── COVER PAGE ────────────
-  fillPage();
-  starDecor(1);
-
-  // top glow
-  doc.setFillColor(90,40,180);
-  doc.ellipse(50, 80, 80, 50, 'F'); // fake radial via ellipse opacity trick
-  // reset to bg so it blends (jsPDF has no opacity but we layer)
-  doc.setFillColor(...BG);
-  doc.setGState(new doc.GState({opacity: 0.85}));
-  doc.rect(0, 0, W, H, 'F');
-  doc.setGState(new doc.GState({opacity: 1}));
-
-  // moon glyph
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(48);
-  doc.setTextColor(...GOLD);
-  doc.text('☽', W/2, 72, {align:'center'});
-
-  // brand
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...GOLD);
-  doc.setCharSpace(3);
-  doc.text('JYOTISH', W/2, 88, {align:'center'});
-  doc.setCharSpace(0);
-
-  // title
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(22);
-  doc.setTextColor(...GOLD_LIGHT);
-  doc.text('Vedic Master Reading', W/2, 106, {align:'center'});
-
-  // italic subtitle
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(13);
-  doc.setTextColor(...GOLD);
-  doc.text('Your Complete Cosmic Blueprint', W/2, 116, {align:'center'});
-
-  // gold rule
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.3);
-  doc.line(W/2 - 35, 122, W/2 + 35, 122);
-
-  // subject block
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(16);
-  doc.setTextColor(...GOLD_LIGHT);
-  doc.text(subjectName, W/2, 140, {align:'center'});
-
-  if (subjectDOB) {
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...GOLD);
-    doc.text('Born ' + subjectDOB, W/2, 149, {align:'center'});
-  }
-
-  // modules count badge
-  doc.setFillColor(...DARK_CARD);
-  doc.roundedRect(W/2-28, 158, 56, 14, 2, 2, 'F');
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...GOLD);
-  doc.text(modules.length + ' MODULES  •  ' + today, W/2, 166.5, {align:'center'});
-
-  // bottom rule + disclaimer
-  goldLine(H - 28);
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 88, 70);
-  doc.text('This reading is for self-awareness and strategic insight. Not a substitute for medical, legal, or financial advice.', W/2, H-20, {align:'center', maxWidth: contentW});
-
-  // ──────────── TABLE OF CONTENTS ────────────
-  doc.addPage();
-  fillPage();
-  starDecor();
-
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...GOLD);
-  doc.setCharSpace(3);
-  doc.text('CONTENTS', marginL, marginT + 6);
-  doc.setCharSpace(0);
-
-  goldLine(marginT + 10);
-
-  let tocY = marginT + 20;
-  modules.forEach((m, i) => {
-    const num = String(i+1).padStart(2,'0');
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...GOLD);
-    doc.text(num, marginL, tocY);
-    doc.setTextColor(...CREAM);
-    doc.text(m.name, marginL + 10, tocY);
-    // dot leader
-    doc.setTextColor(60,50,80);
-    const dots = '.'.repeat(55);
-    doc.text(dots, marginL + 10, tocY, {maxWidth: contentW - 15});
-    tocY += 9;
-    if (tocY > H - marginB - 10) {
-      doc.addPage(); fillPage(); starDecor(); tocY = marginT + 10;
+    // ── Helpers ──
+    function fillBG() {
+      doc.setFillColor(...BG);
+      doc.rect(0, 0, W, H, 'F');
     }
-  });
 
-  addPageNumber(2, modules.length + 2);
+    function goldRule(y, alpha) {
+      doc.setDrawColor(...GOLD);
+      doc.setLineWidth(0.25);
+      doc.line(mL, y, W - mR, y);
+    }
 
-  // ──────────── MODULE PAGES ────────────
-  modules.forEach((mod, idx) => {
-    doc.addPage();
-    fillPage();
-    starDecor();
+    function dimRule(y) {
+      doc.setDrawColor(...RULE_COL);
+      doc.setLineWidth(0.15);
+      doc.line(mL, y, W - mR, y);
+    }
 
-    const pageNum = idx + 3;
+    function starDots() {
+      const pts = [[22,15],[185,25],[55,278],[162,265],[193,52],[28,245],[105,10],[172,282],[80,140],[140,155]];
+      doc.setFillColor(255,255,255);
+      pts.forEach(([x,y]) => doc.circle(x, y, 0.35, 'F'));
+    }
 
-    // Module header bar
-    doc.setFillColor(...DARK_CARD);
-    doc.rect(0, 0, W, 32, 'F');
+    function pageFooter(n, total) {
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...DIM);
+      doc.text('JYOTISH  •  VEDIC MASTER READING', mL, H - 11);
+      doc.text(String(n) + ' / ' + String(total), W - mR, H - 11, {align:'right'});
+      goldRule(H - 14);
+    }
 
-    // Module number
+    // ── Strip all markdown from raw AI text ──
+    function cleanText(raw) {
+      return raw
+        .replace(/\r\n/g, '\n')
+        .replace(/---+/g, '')          // remove horizontal rules
+        .replace(/===+/g, '')
+        .replace(/\*\*(.*?)\*\*/g, '$1')  // strip bold markers, keep text
+        .replace(/\*(.*?)\*/g, '$1')      // strip italic markers
+        .replace(/^#{1,6}\s*/gm, '')      // strip all # headings
+        .replace(/`{1,3}[^`]*`{1,3}/g, '') // strip code
+        .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+    }
+
+    // ── Parse cleaned lines into typed blocks ──
+    function parseBlocks(cleanedText) {
+      const lines = cleanedText.split('\n');
+      const blocks = [];
+
+      lines.forEach(raw => {
+        const line = raw.trimEnd();
+        const t = line.trim();
+        if (!t) { blocks.push({type:'gap'}); return; }
+
+        // Detect heading-like lines: originally ## or ### (already stripped)
+        // We rely on post-clean structural cues: ALL CAPS short lines, or lines ending with ':'
+        if (/^bottom line:?\s*/i.test(t)) {
+          blocks.push({type:'bottomline', text: t.replace(/^bottom line:?\s*/i,'').trim()});
+          return;
+        }
+
+        // Numbered list item
+        if (/^\d{1,2}\.\s/.test(t)) {
+          const num = t.match(/^(\d{1,2}\.)/)[1];
+          blocks.push({type:'numbered', num, text: t.replace(/^\d{1,2}\.\s/,'').trim()});
+          return;
+        }
+
+        // Bullet
+        if (/^[-•*]\s/.test(t)) {
+          blocks.push({type:'bullet', text: t.replace(/^[-•*]\s/,'').trim()});
+          return;
+        }
+
+        // Short line in ALL CAPS or title case that reads like a heading
+        if (t.length < 80 && /^[A-Z][A-Z\s&:()\/0-9-]+$/.test(t)) {
+          blocks.push({type:'h2', text: t});
+          return;
+        }
+
+        // Sub-heading: title case, short, not a sentence
+        if (t.length < 70 && !t.endsWith('.') && /^[A-Z]/.test(t) && (t.split(' ').length <= 7)) {
+          // Could be a heading or just a short sentence — treat short non-sentence lines as h3
+          blocks.push({type:'h3', text: t});
+          return;
+        }
+
+        // Normal paragraph text
+        blocks.push({type:'para', text: t});
+      });
+
+      // Collapse consecutive gaps
+      const merged = [];
+      blocks.forEach(b => {
+        if (b.type === 'gap' && merged.length && merged[merged.length-1].type === 'gap') return;
+        merged.push(b);
+      });
+      return merged;
+    }
+
+    // ── Render one block onto the doc, return new y ──
+    function renderBlock(block, y, pageNum, totalPages) {
+      const LINE_H = 5.2;
+
+      function checkOverflow(needed) {
+        if (y + needed > H - mB - 6) {
+          pageFooter(pageNum, totalPages);
+          doc.addPage();
+          fillBG();
+          starDots();
+          y = mT + 4;
+          // continuation sub-bar
+          doc.setFillColor(...CARD_BG);
+          doc.rect(0, 0, W, 12, 'F');
+          doc.setFont('helvetica','italic');
+          doc.setFontSize(7);
+          doc.setTextColor(...GOLD);
+          doc.text('continued...', mL, 8.5);
+          goldRule(12);
+          y = 20;
+        }
+        return y;
+      }
+
+      switch(block.type) {
+        case 'gap':
+          y += 2.5;
+          break;
+
+        case 'h2': {
+          y = checkOverflow(14);
+          y += 4;
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(11);
+          doc.setTextColor(...GOLD_LT);
+          const wrapped = doc.splitTextToSize(block.text, cW);
+          wrapped.forEach(wl => { doc.text(wl, mL, y); y += 6.5; });
+          dimRule(y);
+          y += 4;
+          break;
+        }
+
+        case 'h3': {
+          y = checkOverflow(10);
+          y += 3;
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(9.5);
+          doc.setTextColor(...GOLD);
+          const wrapped = doc.splitTextToSize(block.text, cW);
+          wrapped.forEach(wl => { doc.text(wl, mL, y); y += 5.5; });
+          y += 1;
+          break;
+        }
+
+        case 'bottomline': {
+          const textLines = doc.setFont('helvetica','normal') || true;
+          const wrapped = doc.splitTextToSize(block.text, cW - 12);
+          const boxH = 10 + wrapped.length * 5.5;
+          y = checkOverflow(boxH + 8);
+          y += 4;
+          // dark card bg
+          doc.setFillColor(12, 8, 26);
+          doc.roundedRect(mL, y - 3, cW, boxH, 1.5, 1.5, 'F');
+          // gold left bar
+          doc.setFillColor(...GOLD);
+          doc.rect(mL, y - 3, 2.5, boxH, 'F');
+          // label
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(6.5);
+          doc.setTextColor(...GOLD);
+          doc.text('BOTTOM LINE', mL + 6, y + 2.5);
+          // content
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(9.5);
+          doc.setTextColor(...GOLD_LT);
+          wrapped.forEach(wl => { y += 5.5; doc.text(wl, mL + 6, y); });
+          y += boxH - wrapped.length * 5.5 + 4;
+          break;
+        }
+
+        case 'numbered': {
+          y = checkOverflow(8);
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(8.5);
+          doc.setTextColor(...GOLD);
+          doc.text(block.num, mL + 1, y);
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...CREAM);
+          const wrapped = doc.splitTextToSize(block.text, cW - 10);
+          wrapped.forEach((wl, i) => {
+            y = checkOverflow(6);
+            doc.text(wl, mL + 9, y);
+            if (i < wrapped.length - 1) y += LINE_H;
+          });
+          y += LINE_H + 1;
+          break;
+        }
+
+        case 'bullet': {
+          y = checkOverflow(8);
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(10);
+          doc.setTextColor(...GOLD);
+          doc.text('•', mL + 1, y);
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...CREAM);
+          const wrapped = doc.splitTextToSize(block.text, cW - 9);
+          wrapped.forEach((wl, i) => {
+            y = checkOverflow(6);
+            doc.text(wl, mL + 7, y);
+            if (i < wrapped.length - 1) y += LINE_H;
+          });
+          y += LINE_H + 0.5;
+          break;
+        }
+
+        case 'para':
+        default: {
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...CREAM);
+          const wrapped = doc.splitTextToSize(block.text, cW);
+          wrapped.forEach(wl => {
+            y = checkOverflow(6);
+            doc.text(wl, mL, y);
+            y += LINE_H;
+          });
+          y += 1.5;
+          break;
+        }
+      }
+
+      return y;
+    }
+
+    const totalPages = modules.length + 2; // cover + TOC + module pages (approx)
+
+    // ──────────── COVER PAGE ────────────
+    fillBG();
+    starDots();
+
+    // purple glow blob (layered rects to fake blur)
+    [[70,35,130,0.18],[70,35,130,0.12],[70,35,130,0.07]].forEach(([r,g,b,a]) => {
+      doc.setFillColor(r,g,b);
+      doc.ellipse(W*0.38, 75, 55, 38, 'F');
+    });
+
+    // Moon glyph
     doc.setFont('helvetica','bold');
+    doc.setFontSize(52);
+    doc.setTextColor(...GOLD);
+    doc.text('☽', W/2, 72, {align:'center'});
+
+    // Brand
+    doc.setFont('helvetica','normal');
     doc.setFontSize(8);
     doc.setTextColor(...GOLD);
-    doc.setCharSpace(2);
-    doc.text('MODULE ' + String(idx+1).padStart(2,'0'), marginL, 13);
+    doc.setCharSpace(3.5);
+    doc.text('JYOTISH', W/2, 87, {align:'center'});
     doc.setCharSpace(0);
 
-    // Module name
+    // Title
     doc.setFont('helvetica','normal');
-    doc.setFontSize(14);
-    doc.setTextColor(...GOLD_LIGHT);
-    doc.text(mod.name, marginL, 24);
+    doc.setFontSize(22);
+    doc.setTextColor(...GOLD_LT);
+    doc.text('Vedic Master Reading', W/2, 105, {align:'center'});
 
-    // gold underline on header
-    doc.setDrawColor(...GOLD);
-    doc.setLineWidth(0.5);
-    doc.line(0, 32, W, 32);
+    // Subtitle
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(12);
+    doc.setTextColor(...GOLD);
+    doc.text('Your Complete Cosmic Blueprint', W/2, 115, {align:'center'});
 
-    // Parse and render content
-    let y = 44;
-    const rawText = mod.text
-      .replace(/<br\s*\/?>|\\n/gi, '\n')
-      .replace(/<strong[^>]*>(.*?)<\/strong>/gi, (_, t) => '**' + t + '**')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+    goldRule(121);
 
-    const lines = rawText.split(/\\n|\n/);
+    // Subject name
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(17);
+    doc.setTextColor(...GOLD_LT);
+    doc.text(subjectName, W/2, 140, {align:'center'});
 
-    lines.forEach(line => {
-      if (!line.trim()) { y += 2; return; }
+    if (subjectDOB) {
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...GOLD);
+      doc.text('Born ' + subjectDOB, W/2, 150, {align:'center'});
+    }
 
-      // Check for page overflow
-      if (y > H - marginB - 6) {
-        addPageNumber(pageNum, modules.length + 2);
-        doc.addPage();
-        fillPage();
-        starDecor();
-        // continuation header
-        doc.setFillColor(...DARK_CARD);
-        doc.rect(0, 0, W, 18, 'F');
-        doc.setFont('helvetica','italic');
-        doc.setFontSize(8);
-        doc.setTextColor(...GOLD);
-        doc.text(mod.name + '  (continued)', marginL, 12);
-        doc.setDrawColor(...GOLD);
-        doc.setLineWidth(0.3);
-        doc.line(0, 18, W, 18);
-        y = 28;
+    // Module count badge
+    doc.setFillColor(...CARD_BG);
+    doc.roundedRect(W/2 - 30, 160, 60, 14, 2, 2, 'F');
+    goldRule(160); // top of badge
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...GOLD);
+    doc.text(modules.length + ' MODULES  •  ' + today, W/2, 168, {align:'center'});
+
+    // Footer disclaimer
+    goldRule(H - 26);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...DIM);
+    doc.text('For self-awareness and strategic insight only. Not medical, legal, or financial advice.', W/2, H - 17, {align:'center', maxWidth: cW});
+    doc.text('Page 1 / ' + totalPages, W/2, H - 10, {align:'center'});
+
+    // ──────────── TABLE OF CONTENTS ────────────
+    doc.addPage();
+    fillBG();
+    starDots();
+
+    // TOC header bar
+    doc.setFillColor(...CARD_BG);
+    doc.rect(0, 0, W, 26, 'F');
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...GOLD);
+    doc.setCharSpace(3);
+    doc.text('CONTENTS', mL, 16);
+    doc.setCharSpace(0);
+    goldRule(26);
+
+    let tocY = 38;
+    modules.forEach((m, i) => {
+      const num = String(i + 1).padStart(2, '0');
+
+      // alternating row tint
+      if (i % 2 === 0) {
+        doc.setFillColor(14, 9, 28);
+        doc.rect(mL - 2, tocY - 5, cW + 4, 9, 'F');
       }
 
-      const isH2      = /^##\s/.test(line);
-      const isH3      = /^###\s/.test(line);
-      const isBottomLine = /^bottom line:/i.test(line.trim());
-      const isBullet  = /^[\-\*•]\s/.test(line.trim());
-      const isNumered = /^\d+\.\s/.test(line.trim());
-      const isBold    = /^\*\*(.*)\*\*$/.test(line.trim());
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GOLD);
+      doc.text(num, mL, tocY);
 
-      if (isH2) {
-        y += 3;
-        const txt = line.replace(/^##\s*/, '');
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(11);
-        doc.setTextColor(...GOLD_LIGHT);
-        const wrapped = doc.splitTextToSize(txt, contentW);
-        wrapped.forEach(wl => { doc.text(wl, marginL, y); y += 6; });
-        // underline
-        doc.setDrawColor(...RULE);
-        doc.setLineWidth(0.15);
-        doc.line(marginL, y, W - marginR, y);
-        y += 4;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...CREAM);
+      doc.text(m.name, mL + 9, tocY);
 
-      } else if (isH3) {
-        y += 2;
-        const txt = line.replace(/^###\s*/, '');
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(10);
-        doc.setTextColor(...GOLD);
-        const wrapped = doc.splitTextToSize(txt, contentW);
-        wrapped.forEach(wl => { doc.text(wl, marginL, y); y += 5.5; });
-        y += 1;
+      // page number on right
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...DIM);
+      doc.text(String(i + 3), W - mR, tocY, {align:'right'});
 
-      } else if (isBottomLine) {
-        y += 3;
-        const txt = line.replace(/^bottom line:\s*/i, '');
-        // gold left bar + box
-        doc.setFillColor(15, 10, 25);
-        doc.roundedRect(marginL, y-4, contentW, 14 + doc.splitTextToSize(txt, contentW-10).length * 5, 1, 1, 'F');
-        doc.setDrawColor(...GOLD);
-        doc.setLineWidth(1);
-        doc.line(marginL, y-4, marginL, y + 10 + doc.splitTextToSize(txt, contentW-10).length * 5);
-        doc.setLineWidth(0.15);
+      tocY += 10;
 
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(7.5);
-        doc.setTextColor(...GOLD);
-        doc.text('BOTTOM LINE', marginL + 4, y + 1);
-
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(9.5);
-        doc.setTextColor(...GOLD_LIGHT);
-        const btLines = doc.splitTextToSize(txt, contentW - 10);
-        btLines.forEach(bl => { y += 5.5; doc.text(bl, marginL + 4, y); });
-        y += 10;
-
-      } else if (isBullet || isNumered) {
-        const txt = line.replace(/^[\-\*•]\s/, '').replace(/^\d+\.\s/, '');
-        const prefix = isBullet ? '•' : line.match(/^\d+/)[0] + '.';
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(9);
-        doc.setTextColor(...CREAM);
-        doc.text(prefix, marginL + 1, y);
-        const wrapped = doc.splitTextToSize(txt.replace(/\*\*(.*?)\*\*/g, ''), contentW - 8);
-        wrapped.forEach(wl => { doc.text(wl, marginL + 8, y); y += 5; });
-        y += 1;
-
-      } else if (isBold) {
-        const txt = line.replace(/\*\*(.*?)\*\*/g, '');
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(9.5);
-        doc.setTextColor(...GOLD_LIGHT);
-        const wrapped = doc.splitTextToSize(txt, contentW);
-        wrapped.forEach(wl => { doc.text(wl, marginL, y); y += 5.5; });
-
-      } else {
-        const txt = line.replace(/\*\*(.*?)\*\*/g, '');
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(9);
-        doc.setTextColor(...CREAM);
-        const wrapped = doc.splitTextToSize(txt, contentW);
-        wrapped.forEach(wl => { doc.text(wl, marginL, y); y += 5; });
+      if (tocY > H - mB - 10) {
+        pageFooter(2, totalPages);
+        doc.addPage(); fillBG(); starDots(); tocY = 30;
       }
     });
 
-    addPageNumber(pageNum, modules.length + 2);
-  });
+    pageFooter(2, totalPages);
 
-  // Save
-  const filename = 'Jyotish-Reading-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
-  doc.save(filename);
+    // ──────────── MODULE PAGES ────────────
+    modules.forEach((mod, idx) => {
+      doc.addPage();
+      fillBG();
+      starDots();
+
+      const pageNum = idx + 3;
+
+      // Module header bar
+      doc.setFillColor(...CARD_BG);
+      doc.rect(0, 0, W, 30, 'F');
+
+      // Gold left accent bar on header
+      doc.setFillColor(...GOLD);
+      doc.rect(0, 0, 3, 30, 'F');
+
+      // Module number
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GOLD);
+      doc.setCharSpace(2);
+      doc.text('MODULE ' + String(idx + 1).padStart(2,'0'), mL + 2, 12);
+      doc.setCharSpace(0);
+
+      // Module name
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(13);
+      doc.setTextColor(...GOLD_LT);
+      const nameLine = doc.splitTextToSize(mod.name, cW - 20);
+      nameLine.forEach((nl, ni) => doc.text(nl, mL + 2, 22 + ni * 6));
+
+      goldRule(30);
+
+      // Parse and render content
+      const cleaned = cleanText(mod.text);
+      const blocks  = parseBlocks(cleaned);
+
+      let y = 42;
+
+      blocks.forEach(block => {
+        y = renderBlock(block, y, pageNum, totalPages);
+      });
+
+      pageFooter(pageNum, totalPages);
+    });
+
+    // ── Generate blob for iframe preview ──
+    const pdfOutput = doc.output('blob');
+    _pdfBlob = pdfOutput;
+
+    const pdfUrl = URL.createObjectURL(pdfOutput);
+    const previewSection = document.getElementById('pdf-preview-section');
+    const iframe = document.getElementById('pdf-iframe');
+
+    if (previewSection && iframe) {
+      iframe.src = pdfUrl;
+      previewSection.style.display = 'block';
+      previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+  } catch (err) {
+    console.error('PDF error:', err);
+    alert('PDF generation failed: ' + err.message);
+  }
 
   btn.disabled = false;
-  btn.innerHTML = '<span class=pdf-icon>↓</span> Download PDF';
+  btn.innerHTML = '<span class="pdf-icon">↓</span> Generate PDF';
 }
+
+
 
 function exportReading() {
   const lines = [];

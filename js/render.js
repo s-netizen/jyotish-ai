@@ -437,7 +437,11 @@ function parseDoshaData(text) {
 // ── Master rich format function ──
 // Called by app.js showTab  -  replaces plain formatText for rich rendering
 function richFormat(raw, moduleId) {
-  const lines = raw.split('\n');
+  // Strip raw markdown artifacts before rendering to screen
+  const cleaned = raw
+    .replace(/^---+\s*$/gm, '')      // horizontal rules
+    .replace(/^===+\s*$/gm, '');     // equals rules
+  const lines = cleaned.split('\n');
   const out = [];
   let i = 0;
   let planetChartInserted = false;

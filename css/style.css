@@ -317,7 +317,7 @@ a:hover { text-decoration: underline; }
 /* ── Upload Grid ── */
 .upload-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 .upload-box {
@@ -792,4 +792,115 @@ a:hover { text-decoration: underline; }
 .mod-para { display: block; margin: 0.2rem 0; line-height: 1.85; }
 .mod-bold-line { display: block; color: #e8d5a3; margin: 0.5rem 0 0.2rem; font-size: 14px; }
 .mod-num { color: #c4a97d; margin-right: 6px; font-family: 'DM Mono', monospace; font-size: 12px; }
+
+
+/* ═══════════════════════════════════════════
+   UPLOAD TOOLTIPS
+═══════════════════════════════════════════ */
+.upload-title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.upload-tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,169,125,0.4);
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,169,125,0.6);
+  cursor: help;
+  flex-shrink: 0;
+  position: relative;
+  outline: none;
+}
+
+.upload-tooltip-box {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f0820;
+  border: 0.5px solid rgba(196,169,125,0.35);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #cfc8b8;
+  width: 220px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  z-index: 50;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  text-align: left;
+}
+
+.upload-tooltip-icon:hover .upload-tooltip-box,
+.upload-tooltip-icon:focus .upload-tooltip-box {
+  display: block;
+}
+
+/* upload grid is defined above in main CSS */
+
+/* ═══════════════════════════════════════════
+   PDF PREVIEW IFRAME
+═══════════════════════════════════════════ */
+.pdf-preview-section {
+  margin: 2rem 0 1rem;
+  border: 0.5px solid rgba(196,169,125,0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a0718;
+}
+
+.pdf-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: rgba(196,169,125,0.05);
+  border-bottom: 0.5px solid rgba(196,169,125,0.15);
+}
+
+.pdf-preview-label {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: #c4a97d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pdf-iframe {
+  width: 100%;
+  height: 680px;
+  border: none;
+  display: block;
+  background: #1a1030;
+}
+
+/* ═══════════════════════════════════════════
+   GENERATE BUTTON PROGRESS STATES
+═══════════════════════════════════════════ */
+#run-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+#run-btn .progress-dot {
+  display: inline-block;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
 
