@@ -1408,3 +1408,53 @@ a:hover { text-decoration: underline; }
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── User menu dropdown ── */
+#user-menu {
+  position: fixed;
+  z-index: 2000;
+  background: #0d0920;
+  border: 0.5px solid rgba(196,169,125,0.35);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  animation: menuFade 0.15s ease;
+}
+@keyframes menuFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.user-menu-email {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,169,125,0.5);
+  padding: 6px 10px 8px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.user-menu-divider {
+  height: 0.5px;
+  background: rgba(196,169,125,0.12);
+  margin: 2px 0;
+}
+.user-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Outfit', sans-serif;
+  color: #cfc8b8;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.user-menu-item:hover { background: rgba(196,169,125,0.08); }
+.user-menu-signout { color: rgba(220,120,100,0.85); margin-top: 2px; }
+.user-menu-signout:hover { background: rgba(220,100,80,0.08); }

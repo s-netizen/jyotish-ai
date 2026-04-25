@@ -1383,23 +1383,56 @@ function resetOTP() {
 
 function onAuthSuccess(user) {
   closeAuthModal();
-  // Update nav to show user info
   const signinBtn = document.querySelector('.nav-signin');
   if (signinBtn && user) {
     const display = user.phone
       ? user.phone.replace('+91', '')
       : (user.email || 'Account');
     signinBtn.textContent = '☽ ' + display;
-    signinBtn.onclick = () => signOut();
+    signinBtn.onclick = (e) => { e.stopPropagation(); toggleUserMenu(display); };
   }
-  // If they came from a pricing button, scroll to form
   if (_pendingAuthPlan) {
     scrollToForm();
     _pendingAuthPlan = null;
   }
 }
 
+function toggleUserMenu(display) {
+  // Remove existing menu if open
+  const existing = document.getElementById('user-menu');
+  if (existing) { existing.remove(); return; }
+
+  const signinBtn = document.querySelector('.nav-signin');
+  const menu = document.createElement('div');
+  menu.id = 'user-menu';
+  menu.innerHTML = `
+    <div class="user-menu-email">${display}</div>
+    <div class="user-menu-divider"></div>
+    <button class="user-menu-item" onclick="scrollToForm(); document.getElementById('user-menu')?.remove();">
+      ✦ New Reading
+    </button>
+    <button class="user-menu-item user-menu-signout" onclick="signOut()">
+      Sign Out
+    </button>
+  `;
+  document.body.appendChild(menu);
+
+  // Position below the nav button
+  const rect = signinBtn.getBoundingClientRect();
+  menu.style.top = (rect.bottom + 8) + 'px';
+  menu.style.right = (window.innerWidth - rect.right) + 'px';
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function closeMenu() {
+      document.getElementById('user-menu')?.remove();
+      document.removeEventListener('click', closeMenu);
+    });
+  }, 0);
+}
+
 async function signOut() {
+  document.getElementById('user-menu')?.remove();
   const sb = getSupabase();
   if (sb) await sb.auth.signOut();
   const signinBtn = document.querySelector('.nav-signin');
