@@ -15,7 +15,11 @@
   <div class="star-field" id="stars"></div>
   <nav class="nav">
     <span class="nav-brand">☽ Jyotish</span>
-    <span class="nav-tag">Vedic Master Reading System</span>
+    <div class="nav-links">
+      <a href="#how-it-works" class="nav-link">How it works</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <button class="nav-signin" onclick="openAuthModal()">Sign In</button>
+    </div>
   </nav>
   <div class="hero-content">
     <p class="hero-eyebrow">23-Module Cosmic Intelligence</p>
@@ -25,6 +29,57 @@
   </div>
   <div class="hero-scroll-hint">scroll</div>
 </header>
+
+<!-- HOW IT WORKS -->
+<section class="hiw-section" id="how-it-works">
+  <div class="container">
+    <p class="section-eyebrow">How it works</p>
+    <h2 class="section-title">Four steps to your complete cosmic blueprint</h2>
+    <p class="hiw-subtitle">No fluff. No generic horoscopes. Every insight is calculated from your exact birth data and cross-validated across multiple ancient systems.</p>
+
+    <div class="hiw-steps">
+
+      <div class="hiw-step">
+        <div class="hiw-step-num">01</div>
+        <div class="hiw-step-icon">✦</div>
+        <h3 class="hiw-step-title">Enter your birth data</h3>
+        <p class="hiw-step-desc">Full name, exact date, time, and place of birth. The more precise the time, the more accurate the Lagna, Dasha periods, and divisional charts. Optional: partner DOB, relocation city, your burning question.</p>
+      </div>
+
+      <div class="hiw-step">
+        <div class="hiw-step-num">02</div>
+        <div class="hiw-step-icon">☽</div>
+        <h3 class="hiw-step-title">Choose your modules</h3>
+        <p class="hiw-step-desc">Select from 23 specialist modules — from Birth Chart and Nakshatra to Palm Reading and Lal Kitab. Upload handwriting, palm photos, or a face image to unlock the biometric modules. Run all 23 or just the ones you need.</p>
+      </div>
+
+      <div class="hiw-step">
+        <div class="hiw-step-num">03</div>
+        <div class="hiw-step-icon">⚡</div>
+        <h3 class="hiw-step-title">AI runs your analysis</h3>
+        <p class="hiw-step-desc">Your data is sent to the AI model of your choice — Claude, Gemini, Groq, or others. Modules run in parallel. Each one cross-references planets, houses, nakshatras, and patterns specific to that domain. No generic output.</p>
+      </div>
+
+      <div class="hiw-step">
+        <div class="hiw-step-num">04</div>
+        <div class="hiw-step-icon">↓</div>
+        <h3 class="hiw-step-title">Read, save, and act</h3>
+        <p class="hiw-step-desc">Your reading loads tab by tab as each module finishes. Browse in-app or export as a styled PDF report — dark background, section-by-section, named after you. Your API key is never stored. Nothing is saved server-side.</p>
+      </div>
+
+    </div>
+
+    <div class="hiw-proof">
+      <div class="hiw-proof-item"><span class="hiw-proof-num">23</span><span class="hiw-proof-label">specialist modules</span></div>
+      <div class="hiw-proof-divider">·</div>
+      <div class="hiw-proof-item"><span class="hiw-proof-num">6</span><span class="hiw-proof-label">AI providers</span></div>
+      <div class="hiw-proof-divider">·</div>
+      <div class="hiw-proof-item"><span class="hiw-proof-num">0</span><span class="hiw-proof-label">data stored</span></div>
+      <div class="hiw-proof-divider">·</div>
+      <div class="hiw-proof-item"><span class="hiw-proof-num">∞</span><span class="hiw-proof-label">readings per key</span></div>
+    </div>
+  </div>
+</section>
 
 <!-- MODULES OVERVIEW -->
 <section class="modules-overview">
@@ -337,10 +392,122 @@
   </div>
 </section>
 
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <p class="section-eyebrow">Pricing</p>
+    <h2 class="section-title">Pay once. Read everything.</h2>
+    <p class="pricing-subtitle">No subscription. No recurring charges. Your API key covers the AI cost directly — you only pay for what you actually use. Jyotish adds the reading framework on top.</p>
+
+    <div class="pricing-grid">
+
+      <div class="pricing-card">
+        <div class="pricing-badge">Free</div>
+        <div class="pricing-name">Explorer</div>
+        <div class="pricing-price">₹0<span class="pricing-period">/reading</span></div>
+        <p class="pricing-desc">Bring your own API key. Full access to all 23 modules, all 6 AI providers, image uploads, and PDF export. You pay the AI provider directly for usage.</p>
+        <ul class="pricing-features">
+          <li>✓ All 23 modules</li>
+          <li>✓ 6 AI providers</li>
+          <li>✓ Palm, handwriting, face upload</li>
+          <li>✓ PDF export</li>
+          <li>✓ Your API key, your privacy</li>
+          <li class="dim">✗ No saved readings</li>
+          <li class="dim">✗ No history</li>
+        </ul>
+        <button class="btn-pricing-outline" onclick="scrollToForm()">Start Reading</button>
+      </div>
+
+      <div class="pricing-card pricing-card-featured">
+        <div class="pricing-badge pricing-badge-featured">Most Popular</div>
+        <div class="pricing-name">Seeker</div>
+        <div class="pricing-price">₹299<span class="pricing-period">/reading</span></div>
+        <p class="pricing-desc">We handle the AI cost. No API key needed. Enter your details and get the full reading instantly. Best for occasional use or trying the platform.</p>
+        <ul class="pricing-features">
+          <li>✓ All 23 modules</li>
+          <li>✓ Claude Sonnet (best quality)</li>
+          <li>✓ Image analysis included</li>
+          <li>✓ Styled PDF download</li>
+          <li>✓ Reading saved to your account</li>
+          <li>✓ Email delivery</li>
+          <li class="dim">✗ No reading history</li>
+        </ul>
+        <button class="btn-pricing" onclick="openAuthModal('seeker')">Get Started</button>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-badge">Best Value</div>
+        <div class="pricing-name">Blueprint</div>
+        <div class="pricing-price">₹799<span class="pricing-period">/month</span></div>
+        <p class="pricing-desc">Unlimited readings. Full history. Priority queue. Ideal for serious seekers who want to track timing windows, revisit modules, and run readings for family.</p>
+        <ul class="pricing-features">
+          <li>✓ Unlimited readings/month</li>
+          <li>✓ All 23 modules per reading</li>
+          <li>✓ Full reading history</li>
+          <li>✓ Family profiles (up to 5)</li>
+          <li>✓ Priority AI processing</li>
+          <li>✓ Email + WhatsApp delivery</li>
+          <li>✓ Early access to new modules</li>
+        </ul>
+        <button class="btn-pricing-outline" onclick="openAuthModal('blueprint')">Get Blueprint</button>
+      </div>
+
+    </div>
+
+    <p class="pricing-note">Seeker and Blueprint plans use Claude Sonnet for all readings — the highest-quality model for Vedic analysis. Explorer plan uses your own key, any provider you choose.</p>
+  </div>
+</section>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="auth-overlay" onclick="closeAuthModal(event)">
+  <div class="auth-modal" id="auth-modal">
+    <button class="auth-close" onclick="closeAuthModal()">✕</button>
+    <div class="auth-logo">☽</div>
+    <h3 class="auth-title">Sign in to Jyotish</h3>
+    <p class="auth-sub" id="auth-plan-label">Continue to your reading</p>
+
+    <div class="auth-buttons">
+      <button class="auth-btn auth-btn-google" onclick="authWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+
+      <button class="auth-btn auth-btn-apple" onclick="authWithApple()">
+        <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.174 9.444c-.02-2.13 1.741-3.16 1.82-3.211-1-1.459-2.543-1.659-3.085-1.676-1.308-.134-2.57.779-3.235.779-.665 0-1.68-.762-2.764-.742-1.41.02-2.72.828-3.443 2.091C.862 9.217 1.91 13.278 3.6 15.487c.845 1.082 1.842 2.293 3.145 2.246 1.271-.051 1.748-.815 3.283-.815 1.533 0 1.973.815 3.313.785 1.364-.022 2.222-1.095 3.057-2.183.966-1.25 1.362-2.465 1.381-2.527-.032-.013-2.64-1.015-2.663-3.549zM10.947 3.01C11.64 2.167 12.108 1 11.968 0c-1.041.041-2.31.694-3.065 1.537-.671.74-1.264 1.94-1.103 3.071 1.168.085 2.36-.587 3.147-1.598z" fill="white"/></svg>
+        Continue with Apple
+      </button>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <div class="auth-otp-wrap" id="auth-otp-step1">
+        <div class="auth-phone-input">
+          <span class="auth-phone-code">+91</span>
+          <input type="tel" id="auth-phone" placeholder="Mobile number" maxlength="10" inputmode="numeric" />
+        </div>
+        <button class="auth-btn auth-btn-otp" onclick="sendOTP()">Send OTP</button>
+      </div>
+
+      <div class="auth-otp-wrap" id="auth-otp-step2" style="display:none">
+        <p class="auth-otp-hint">OTP sent to +91 <span id="auth-phone-display"></span></p>
+        <input type="text" id="auth-otp" placeholder="Enter 6-digit OTP" maxlength="6" inputmode="numeric" class="auth-otp-input" />
+        <button class="auth-btn auth-btn-otp" onclick="verifyOTP()">Verify & Continue</button>
+        <button class="auth-link" onclick="resetOTP()">← Change number</button>
+      </div>
+    </div>
+
+    <p class="auth-terms">By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
     <p class="footer-brand">☽ Jyotish: Vedic Master Reading System</p>
+    <div class="footer-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#reading-form">Start reading</a>
+    </div>
     <p class="footer-note">This reading is for self-awareness and strategic insight. Not a substitute for medical, legal, or financial advice.</p>
   </div>
 </footer>

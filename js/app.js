@@ -207,7 +207,7 @@ function buildPrompt(subject, modIds) {
     ? `Partner Name + DOB: ${subject.partner}`
     : 'No partner data provided. Running Tier 1 only for Module 7.';
 
-  return `You are an elite Vedic Astrologer, Numerologist, Behavioral Psychologist, Palmist, and Life Strategist. Deliver a brutally honest, mathematically precise, structured reading.
+  return `You are delivering a complete Vedic master reading. This is not a generic horoscope. Every sentence must reference a specific planet, house, nakshatra, yoga, or dasha period. No vague reassurances. No padding. No em dashes.
 
 SUBJECT DATA:
 Full Name: ${subject.name}
@@ -215,29 +215,32 @@ Date of Birth: ${subject.dob}
 Exact Time of Birth: ${subject.tob}
 Place of Birth: ${subject.pob}
 Current City: ${subject.city}
-Career: ${subject.career}
-Current State: ${subject.state}
+Career/Industry: ${subject.career}
+Current Mental and Physical State: ${subject.state}
 ${partnerLine}
 ${subject.reloc ? 'Relocation Target: ' + subject.reloc : ''}
-${subject.question ? 'BURNING QUESTION (highest priority): ' + subject.question : ''}
-Today's Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+${subject.question ? 'PRIMARY QUESTION (answer this above everything else): ' + subject.question : ''}
+Today: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
 
 MODULES TO DELIVER:
 ${modList}
 
-EXECUTION RULES:
-1. Calculate the Vedic birth chart mathematically from the data. State all 9 planetary positions with house and sign.
-2. Use ## bold headings and numbered points throughout.
-3. Every claim must reference a specific planet, house, nakshatra, or pattern  -  no vague statements.
-4. No generic platitudes. No toxic positivity. Deliver precise strategic intelligence.
-5. Each module ends with "Bottom line:"  -  one definitive, non-negotiable sentence in bold.
-6. Treat the subject like a CEO seeking high-stakes strategic clarity.
-7. For Module 23: synthesise all findings into 10 numbered points + one specific, time-bound action to execute TODAY.
-${modIds.includes(19) ? '8. Module 19 (Handwriting): analyse the provided handwriting image in detail.' : ''}
-${modIds.includes(20) ? '9. Module 20 (Palm): analyse the provided palm image in detail.' : ''}
-${modIds.includes(21) ? '10. Module 21 (Face): analyse the provided face image in detail.' : ''}
+WRITING RULES (follow these exactly):
+1. Calculate the Vedic birth chart from the data provided. State all 9 planetary positions with sign, house, and nakshatra. Do this first in Module 1.
+2. Use ## for section headings and ### for sub-headings. Use numbered lists for sequential insights. Use bullet points for supporting evidence only.
+3. Every prediction must cite its planetary basis. "Your career shifts in Q3 2026 because Saturn transits your 10th house lord in Revati nakshatra" not "career changes are coming."
+4. Timing must be specific. Name the year and quarter. Name the Mahadasha and Antardasha running at that time.
+5. Each module ends with exactly one "Bottom line:" paragraph. One definitive, time-bound sentence. No hedging.
+6. No em dashes anywhere. Use commas or full stops.
+7. Do not say: "it's important to note", "it's worth mentioning", "as an AI", "I should point out", "fascinating", "delve", "navigate", "tapestry", "in conclusion", or any similar filler.
+8. Write in short sentences. 15 words max per sentence wherever possible.
+9. For image modules: describe what you physically observe first, then interpret. Be specific about line characteristics, letter formations, or facial features.
+10. Module 23 must synthesise findings into exactly 10 numbered insights and one specific action to take before the end of this week.
+${modIds.includes(19) ? '11. Module 19 (Handwriting): name the baseline type, pressure level, zone dominance, and slant direction. Then interpret each.' : ''}
+${modIds.includes(20) ? '12. Module 20 (Palm): analyse left and right hands separately if both provided. Name each major line and describe its length, depth, breaks, and branches before interpreting.' : ''}
+${modIds.includes(21) ? '13. Module 21 (Face): describe the face shape, then analyse forehead lines, eye spacing, nose bridge, lip fullness, and jaw structure individually before interpreting.' : ''}
 
-Begin the complete reading now, module by module.`;
+Deliver the reading now, module by module, in the order listed above.`;
 }
 
 // ── Build Messages Array (with optional images) ──
@@ -477,7 +480,7 @@ function updateProgressText(msg) {
 
 // ── API Providers ──
 
-const SYSTEM_PROMPT = 'You are a master Vedic astrologer and life strategist. Write like a sharp, experienced human mentor. Be precise and direct. Never use em dashes. Avoid AI filler phrases. Sound real.';
+const SYSTEM_PROMPT = `You are a senior Vedic astrologer, palmist, and behavioral analyst with 25 years of practice. You write the way an elite human mentor speaks: direct, precise, occasionally blunt. You cite specific planetary positions, house numbers, and nakshatra names in every claim. You never pad. You never use em dashes. You do not say "it's important to note", "it is worth mentioning", "in conclusion", "as we can see", "fascinating", or any phrase that signals AI-generated text. You write in short, punchy sentences. Each paragraph earns its place. When you analyse a palm or handwriting, you describe what you see physically first, then interpret it. When you give timing predictions, you give year and quarter, not vague windows. You end every module with a single "Bottom line:" sentence that is non-negotiable and time-specific. Sound like a human who has read 10,000 charts.`;
 
 const PROVIDERS = {
   claude:     { models: ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001'] },
@@ -1231,7 +1234,70 @@ function exportReading() {
   a.click();
 }
 
-// ── Init ──
+// ── Auth Modal ──
+let _pendingAuthPlan = null;
+
+function openAuthModal(plan) {
+  _pendingAuthPlan = plan || null;
+  const label = document.getElementById('auth-plan-label');
+  if (label) {
+    label.textContent = plan === 'seeker' ? 'Sign in to start your ₹299 reading'
+      : plan === 'blueprint' ? 'Sign in to activate Blueprint plan'
+      : 'Sign in to your account';
+  }
+  document.getElementById('auth-overlay').classList.add('open');
+  document.getElementById('auth-otp-step1').style.display = '';
+  document.getElementById('auth-otp-step2').style.display = 'none';
+}
+
+function closeAuthModal(e) {
+  if (e && e.target !== document.getElementById('auth-overlay')) return;
+  document.getElementById('auth-overlay').classList.remove('open');
+}
+
+function authWithGoogle() {
+  // Placeholder: integrate Firebase/Supabase Google OAuth here
+  alert('Google login coming soon. For now use your own API key in Explorer mode.');
+  closeAuthModal();
+}
+
+function authWithApple() {
+  // Placeholder: integrate Sign in with Apple here
+  alert('Apple login coming soon. For now use your own API key in Explorer mode.');
+  closeAuthModal();
+}
+
+function sendOTP() {
+  const phone = document.getElementById('auth-phone').value.trim();
+  if (!/^\d{10}$/.test(phone)) {
+    alert('Please enter a valid 10-digit mobile number.');
+    return;
+  }
+  document.getElementById('auth-phone-display').textContent = phone;
+  document.getElementById('auth-otp-step1').style.display = 'none';
+  document.getElementById('auth-otp-step2').style.display = '';
+  // Placeholder: send OTP via SMS provider (Twilio, MSG91, etc.)
+  console.log('OTP sent to +91' + phone, '(placeholder — integrate SMS provider)');
+}
+
+function verifyOTP() {
+  const otp = document.getElementById('auth-otp').value.trim();
+  if (!/^\d{6}$/.test(otp)) {
+    alert('Please enter the 6-digit OTP.');
+    return;
+  }
+  // Placeholder: verify OTP server-side
+  alert('OTP verification coming soon. For now use your own API key in Explorer mode.');
+  closeAuthModal();
+}
+
+function resetOTP() {
+  document.getElementById('auth-otp-step1').style.display = '';
+  document.getElementById('auth-otp-step2').style.display = 'none';
+  document.getElementById('auth-otp').value = '';
+}
+
+// Init
 document.addEventListener('DOMContentLoaded', () => {
   generateStars();
   renderModuleOverview();
