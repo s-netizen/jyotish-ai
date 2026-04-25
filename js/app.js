@@ -1255,46 +1255,160 @@ function closeAuthModal(e) {
   document.getElementById('auth-overlay').classList.remove('open');
 }
 
-function authWithGoogle() {
-  // Placeholder: integrate Firebase/Supabase Google OAuth here
-  alert('Google login coming soon. For now use your own API key in Explorer mode.');
-  closeAuthModal();
+// ── Supabase Auth (real implementation) ──
+// These values are safe to expose in frontend — they are public anon keys
+const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY';
+
+function getSupabase() {
+  if (window._supabaseClient) return window._supabaseClient;
+  if (!window.supabase) { showAuthError('Supabase SDK not loaded. Check your internet connection.'); return null; }
+  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return window._supabaseClient;
 }
 
-function authWithApple() {
-  // Placeholder: integrate Sign in with Apple here
-  alert('Apple login coming soon. For now use your own API key in Explorer mode.');
-  closeAuthModal();
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
 
-function sendOTP() {
+function clearAuthError() {
+  const el = document.getElementById('auth-error');
+  if (el) { el.textContent = ''; el.style.display = 'none'; }
+}
+
+function setAuthLoading(btn, loading) {
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.dataset.orig = btn.dataset.orig || btn.innerHTML;
+  btn.innerHTML = loading ? '<span class="auth-spinner">⟳</span> Please wait...' : btn.dataset.orig;
+}
+
+async function authWithGoogle() {
+  clearAuthError();
+  const sb = getSupabase();
+  if (!sb) return;
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) showAuthError(error.message);
+}
+
+async function authWithApple() {
+  clearAuthError();
+  const sb = getSupabase();
+  if (!sb) return;
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) showAuthError(error.message);
+}
+
+async function sendOTP() {
+  clearAuthError();
   const phone = document.getElementById('auth-phone').value.trim();
   if (!/^\d{10}$/.test(phone)) {
-    alert('Please enter a valid 10-digit mobile number.');
+    showAuthError('Enter a valid 10-digit Indian mobile number.');
     return;
   }
+  const btn = document.querySelector('#auth-otp-step1 .auth-btn-otp');
+  setAuthLoading(btn, true);
+
+  const sb = getSupabase();
+  if (!sb) { setAuthLoading(btn, false); return; }
+
+  const { error } = await sb.auth.signInWithOtp({
+    phone: '+91' + phone,
+  });
+
+  setAuthLoading(btn, false);
+
+  if (error) {
+    showAuthError(error.message);
+    return;
+  }
+
   document.getElementById('auth-phone-display').textContent = phone;
   document.getElementById('auth-otp-step1').style.display = 'none';
   document.getElementById('auth-otp-step2').style.display = '';
-  // Placeholder: send OTP via SMS provider (Twilio, MSG91, etc.)
-  console.log('OTP sent to +91' + phone, '(placeholder — integrate SMS provider)');
 }
 
-function verifyOTP() {
+async function verifyOTP() {
+  clearAuthError();
   const otp = document.getElementById('auth-otp').value.trim();
+  const phone = document.getElementById('auth-phone').value.trim();
+
   if (!/^\d{6}$/.test(otp)) {
-    alert('Please enter the 6-digit OTP.');
+    showAuthError('Enter the 6-digit OTP sent to your phone.');
     return;
   }
-  // Placeholder: verify OTP server-side
-  alert('OTP verification coming soon. For now use your own API key in Explorer mode.');
-  closeAuthModal();
+
+  const btn = document.querySelector('#auth-otp-step2 .auth-btn-otp');
+  setAuthLoading(btn, true);
+
+  const sb = getSupabase();
+  if (!sb) { setAuthLoading(btn, false); return; }
+
+  const { data, error } = await sb.auth.verifyOtp({
+    phone: '+91' + phone,
+    token: otp,
+    type: 'sms',
+  });
+
+  setAuthLoading(btn, false);
+
+  if (error) {
+    showAuthError('Invalid OTP. Please try again.');
+    return;
+  }
+
+  // Success
+  onAuthSuccess(data.user);
 }
 
 function resetOTP() {
+  clearAuthError();
   document.getElementById('auth-otp-step1').style.display = '';
   document.getElementById('auth-otp-step2').style.display = 'none';
   document.getElementById('auth-otp').value = '';
+}
+
+function onAuthSuccess(user) {
+  closeAuthModal();
+  // Update nav to show user info
+  const signinBtn = document.querySelector('.nav-signin');
+  if (signinBtn && user) {
+    const display = user.phone
+      ? user.phone.replace('+91', '')
+      : (user.email || 'Account');
+    signinBtn.textContent = '☽ ' + display;
+    signinBtn.onclick = () => signOut();
+  }
+  // If they came from a pricing button, scroll to form
+  if (_pendingAuthPlan) {
+    scrollToForm();
+    _pendingAuthPlan = null;
+  }
+}
+
+async function signOut() {
+  const sb = getSupabase();
+  if (sb) await sb.auth.signOut();
+  const signinBtn = document.querySelector('.nav-signin');
+  if (signinBtn) {
+    signinBtn.textContent = 'Sign In';
+    signinBtn.onclick = () => openAuthModal();
+  }
+}
+
+// Check session on load
+async function checkExistingSession() {
+  const sb = getSupabase();
+  if (!sb) return;
+  const { data } = await sb.auth.getSession();
+  if (data.session?.user) onAuthSuccess(data.session.user);
 }
 
 // Init
@@ -1302,4 +1416,5 @@ document.addEventListener('DOMContentLoaded', () => {
   generateStars();
   renderModuleOverview();
   renderChips();
+  checkExistingSession();
 });
