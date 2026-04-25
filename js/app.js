@@ -1260,10 +1260,16 @@ function closeAuthModal(e) {
 const SUPABASE_URL = 'https://okarzkemcidhahgzhzle.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_5kfbUs0tDyypIMREu-ZwRQ_5ceI_TLq';
 
+const SITE_URL = 'https://jyotish-ai.netlify.app';
+
 function getSupabase() {
   if (window._supabaseClient) return window._supabaseClient;
   if (!window.supabase) { showAuthError('Supabase SDK not loaded. Check your internet connection.'); return null; }
-  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      redirectTo: SITE_URL,
+    }
+  });
   return window._supabaseClient;
 }
 
@@ -1290,7 +1296,7 @@ async function authWithGoogle() {
   if (!sb) return;
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://jyotish-ai.netlify.app' }
+    options: { redirectTo: SITE_URL }
   });
   if (error) showAuthError(error.message);
 }
@@ -1301,7 +1307,7 @@ async function authWithApple() {
   if (!sb) return;
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'apple',
-    options: { redirectTo: 'https://jyotish-ai.netlify.app' }
+    options: { redirectTo: SITE_URL }
   });
   if (error) showAuthError(error.message);
 }
