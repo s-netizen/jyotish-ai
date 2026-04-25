@@ -1257,8 +1257,8 @@ function closeAuthModal(e) {
 
 // ── Supabase Auth (real implementation) ──
 // These values are safe to expose in frontend — they are public anon keys
-const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://okarzkemcidhahgzhzle.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_5kfbUs0tDyypIMREu-ZwRQ_5ceI_TLq';
 
 function getSupabase() {
   if (window._supabaseClient) return window._supabaseClient;
@@ -1290,7 +1290,7 @@ async function authWithGoogle() {
   if (!sb) return;
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin }
+    options: { redirectTo: 'https://jyotish-ai.netlify.app' }
   });
   if (error) showAuthError(error.message);
 }
@@ -1301,7 +1301,7 @@ async function authWithApple() {
   if (!sb) return;
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'apple',
-    options: { redirectTo: window.location.origin }
+    options: { redirectTo: 'https://jyotish-ai.netlify.app' }
   });
   if (error) showAuthError(error.message);
 }
