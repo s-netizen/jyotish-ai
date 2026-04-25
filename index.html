@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jyotish: Vedic Master Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="star-field" id="stars"></div>
+  <nav class="nav">
+    <span class="nav-brand">☽ Jyotish</span>
+    <span class="nav-tag">Vedic Master Reading System</span>
+  </nav>
+  <div class="hero-content">
+    <p class="hero-eyebrow">23-Module Cosmic Intelligence</p>
+    <h1 class="hero-title">Your Complete<br /><em>Vedic Blueprint</em></h1>
+    <p class="hero-sub">Birth chart · Nakshatra · Karma · Career · Marriage · Health · Numerology · Lal Kitab</p>
+    <button class="btn-start" onclick="scrollToForm()">Begin Your Reading</button>
+  </div>
+  <div class="hero-scroll-hint">scroll</div>
+</header>
+
+<!-- MODULES OVERVIEW -->
+<section class="modules-overview">
+  <div class="container">
+    <p class="section-eyebrow">What's included</p>
+    <h2 class="section-title">23 Modules. One Integrated Reading.</h2>
+    <div class="module-grid" id="module-overview-grid"></div>
+  </div>
+</section>
+
+<!-- MAIN FORM -->
+<section class="form-section" id="reading-form">
+  <div class="container-narrow">
+    <p class="section-eyebrow">Your reading</p>
+    <h2 class="section-title">Enter Your Details</h2>
+
+    <!-- STEP 1: REQUIRED -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">01</span>
+        <div>
+          <h3>Core Data</h3>
+          <p>Required for all modules</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-name">Full Name <span class="req">*</span></label>
+          <input type="text" id="f-name" placeholder="As used in daily life" />
+        </div>
+        <div class="field">
+          <label for="f-dob">Date of Birth <span class="req">*</span></label>
+          <input type="text" id="f-dob" placeholder="DD/MM/YYYY" />
+        </div>
+        <div class="field">
+          <label for="f-tob">Exact Time of Birth <span class="req">*</span></label>
+          <input type="text" id="f-tob" placeholder="HH:MM AM/PM" />
+        </div>
+        <div class="field">
+          <label for="f-pob">Place of Birth <span class="req">*</span></label>
+          <input type="text" id="f-pob" placeholder="City, State, Country" />
+        </div>
+        <div class="field">
+          <label for="f-city">Current City / Country <span class="req">*</span></label>
+          <input type="text" id="f-city" placeholder="Where you live now" />
+        </div>
+        <div class="field">
+          <label for="f-career">Career / Industry <span class="req">*</span></label>
+          <input type="text" id="f-career" placeholder="e.g. Program Manager, Technology" />
+        </div>
+        <div class="field full">
+          <label for="f-state">Current Mental & Physical State <span class="req">*</span></label>
+          <textarea id="f-state" rows="3" placeholder="Describe your current stress level, fitness routine, health concerns, energy, sleep quality..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: OPTIONAL DATA -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">02</span>
+        <div>
+          <h3>Optional Data</h3>
+          <p>Unlocks Tier 2 compatibility, relocation analysis, and focused insights</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-partner">Partner Name + Date of Birth</label>
+          <input type="text" id="f-partner" placeholder="Name, DD/MM/YYYY" />
+          <span class="field-hint">Unlocks Module 7 Tier 2 for full compatibility reading</span>
+        </div>
+        <div class="field">
+          <label for="f-reloc">Relocation Target City</label>
+          <input type="text" id="f-reloc" placeholder="e.g. Dubai, Singapore, London, Canada" />
+          <span class="field-hint">Unlocks geographic compatibility in Module 5</span>
+        </div>
+        <div class="field full">
+          <label for="f-question">Your Burning Question</label>
+          <input type="text" id="f-question" placeholder="The single most important question this reading must answer above all else" />
+          <span class="field-hint">Highest priority. The analysis will focus on this above all else.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: IMAGE UPLOADS -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">03</span>
+        <div>
+          <h3>Images</h3>
+          <p>Optional. Unlocks Modules 19, 20, 21 (Handwriting, Palm, Face Reading)</p>
+        </div>
+      </div>
+      <div class="upload-grid">
+
+        <div class="upload-box" id="ub-handwriting">
+          <input type="file" id="img-handwriting" accept="image/*" onchange="handleUpload('handwriting', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-handwriting').click()">
+            <div class="upload-icon">✍</div>
+            <div class="upload-title">Handwriting Sample</div>
+            <div class="upload-sub">5–6 lines, natural script, no corrections</div>
+            <div class="upload-meta">Module 19 · Optional</div>
+            <div class="upload-preview" id="prev-handwriting"></div>
+          </div>
+        </div>
+
+        <div class="upload-box" id="ub-palm">
+          <input type="file" id="img-palm" accept="image/*" onchange="handleUpload('palm', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-palm').click()">
+            <div class="upload-icon">🤚</div>
+            <div class="upload-title">Palm Image</div>
+            <div class="upload-sub">Dominant hand, well-lit, palm facing camera</div>
+            <div class="upload-meta">Module 20 · Optional</div>
+            <div class="upload-preview" id="prev-palm"></div>
+          </div>
+        </div>
+
+        <div class="upload-box" id="ub-face">
+          <input type="file" id="img-face" accept="image/*" onchange="handleUpload('face', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-face').click()">
+            <div class="upload-icon">◉</div>
+            <div class="upload-title">Face Photo</div>
+            <div class="upload-sub">Front-facing, natural light, neutral expression</div>
+            <div class="upload-meta">Module 21 · Optional</div>
+            <div class="upload-preview" id="prev-face"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STEP 4: MODULE SELECTION -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">04</span>
+        <div>
+          <h3>Select Modules</h3>
+          <p>Choose which modules to run, or run all of them</p>
+        </div>
+      </div>
+      <div class="mod-actions">
+        <button class="btn-ghost" onclick="toggleAllMods(true)">Select All</button>
+        <button class="btn-ghost" onclick="toggleAllMods(false)">Clear All</button>
+        <span class="mod-count" id="mod-count">2 selected</span>
+      </div>
+      <div class="module-chips" id="mod-chips"></div>
+    </div>
+
+    <!-- API KEY -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">05</span>
+        <div>
+          <h3>AI Provider & API Key</h3>
+          <p>Your key stays in your browser only. Never stored or sent anywhere else.</p>
+        </div>
+      </div>
+
+      <!-- Provider Toggle -->
+      <div class="provider-toggle">
+
+        <div class="provider-opt active" id="prov-claude" onclick="setProvider('claude')">
+          <div class="prov-icon">▲</div>
+          <div class="prov-info">
+            <div class="prov-name">Claude (Anthropic)</div>
+            <div class="prov-sub">claude-sonnet-4-6 · Paid credits required</div>
+          </div>
+        </div>
+
+        <div class="provider-opt" id="prov-gemini" onclick="setProvider('gemini')">
+          <div class="prov-icon">✦</div>
+          <div class="prov-info">
+            <div class="prov-name">Gemini 2.0 Flash</div>
+            <div class="prov-sub prov-free">Free tier · aistudio.google.com</div>
+          </div>
+        </div>
+
+        <div class="provider-opt" id="prov-groq" onclick="setProvider('groq')">
+          <div class="prov-icon">⚡</div>
+          <div class="prov-info">
+            <div class="prov-name">Groq</div>
+            <div class="prov-sub prov-free">Free tier · Fastest responses · console.groq.com</div>
+          </div>
+        </div>
+
+        <div class="provider-opt" id="prov-openrouter" onclick="setProvider('openrouter')">
+          <div class="prov-icon">⊕</div>
+          <div class="prov-info">
+            <div class="prov-name">OpenRouter</div>
+            <div class="prov-sub prov-free">Free models available · openrouter.ai</div>
+          </div>
+        </div>
+
+        <div class="provider-opt" id="prov-mistral" onclick="setProvider('mistral')">
+          <div class="prov-icon">◈</div>
+          <div class="prov-info">
+            <div class="prov-name">Mistral AI</div>
+            <div class="prov-sub prov-free">Free tier · console.mistral.ai</div>
+          </div>
+        </div>
+
+        <div class="provider-opt" id="prov-cohere" onclick="setProvider('cohere')">
+          <div class="prov-icon">◎</div>
+          <div class="prov-info">
+            <div class="prov-name">Cohere</div>
+            <div class="prov-sub prov-free">Free trial credits · dashboard.cohere.com</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Model selector (shown for providers with multiple models) -->
+      <div id="model-selector-wrap" style="display:none; margin-top:1rem;">
+        <label style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(196,169,125,0.65);font-family:'DM Mono',monospace;">Model</label>
+        <select id="f-model" style="margin-top:4px;width:100%;padding:8px 10px;font-size:13px;border:0.5px solid rgba(196,169,125,0.2);border-radius:2px;background:rgba(255,255,255,0.03);color:#d4c9b0;font-family:'Outfit',sans-serif;">
+        </select>
+      </div>
+
+      <div class="field" style="margin-top:1.25rem;">
+        <label for="f-apikey" id="apikey-label">API Key <span class="req">*</span></label>
+        <input type="password" id="f-apikey" placeholder="sk-ant-..." />
+        <span class="field-hint" id="apikey-hint">
+          Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · Used only for this session
+        </span>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-row">
+      <button class="btn-primary" id="run-btn" onclick="runReading()">
+        <span id="btn-text">Generate My Reading</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </div>
+    <div id="err-area"></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-section" id="results-section" style="display:none;">
+  <div class="container-narrow">
+    <div class="results-header">
+      <h2 class="section-title">Your Reading</h2>
+      <div class="results-meta" id="results-meta"></div>
+    </div>
+
+    <!-- MODULE TABS -->
+    <div class="result-tabs" id="result-tabs"></div>
+
+    <!-- RESULT CONTENT -->
+    <div class="result-content" id="result-content">
+      <div class="result-loading" id="result-loading">
+        <div class="loading-mandala">☽</div>
+        <p>Calculating your cosmic blueprint...</p>
+        <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- NEW READING -->
+    <div class="new-reading-row">
+      <button class="btn-ghost" onclick="newReading()">← Start New Reading</button>
+      <button class="btn-ghost" onclick="exportReading()">Export as Text</button>
+      <button class="btn-pdf" id="pdf-btn" onclick="exportPDF()">
+        <span class="pdf-icon">↓</span> Download PDF
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p class="footer-brand">☽ Jyotish: Vedic Master Reading System</p>
+    <p class="footer-note">This reading is for self-awareness and strategic insight. Not a substitute for medical, legal, or financial advice.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
