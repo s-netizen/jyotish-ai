@@ -1409,12 +1409,39 @@ async function signOut() {
   }
 }
 
-// Check session on load
+// Check session on load + handle OAuth redirect
 async function checkExistingSession() {
   const sb = getSupabase();
   if (!sb) return;
-  const { data } = await sb.auth.getSession();
-  if (data.session?.user) onAuthSuccess(data.session.user);
+
+  // Handle OAuth redirect — Supabase puts tokens in the URL hash
+  const { data: { session }, error } = await sb.auth.getSession();
+
+  if (session?.user) {
+    onAuthSuccess(session.user);
+    // Clean the URL hash so it doesn't show tokens
+    if (window.location.hash.includes('access_token')) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+    return;
+  }
+
+  // Listen for auth state changes (fires after OAuth redirect completes)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      onAuthSuccess(session.user);
+      if (window.location.hash.includes('access_token')) {
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }
+    if (event === 'SIGNED_OUT') {
+      const signinBtn = document.querySelector('.nav-signin');
+      if (signinBtn) {
+        signinBtn.textContent = 'Sign In';
+        signinBtn.onclick = () => openAuthModal();
+      }
+    }
+  });
 }
 
 // Init
