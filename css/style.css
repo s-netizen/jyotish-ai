@@ -303,88 +303,146 @@ em { font-style: italic; color: var(--gold); }
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   margin-bottom: 2.5rem;
   flex-wrap: wrap;
 }
 .rashi-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 32px;
+  font-size: 30px;
   color: var(--white);
   font-weight: 400;
 }
 .rashi-date {
-  font-size: 12px;
+  font-size: 11px;
   font-family: 'DM Mono', monospace;
   color: var(--gold);
+  letter-spacing: 0.08em;
 }
-.rashi-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr)
-  gap: 0.75rem;
+
+/* Horizontal pill selector */
+.rashi-pills-wrap {
+  display: flex;
+  justify-content: center;
   margin-bottom: 2rem;
 }
-@media (max-width: 768px) { .rashi-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 480px) { .rashi-grid { grid-template-columns: repeat(2, 1fr); } }
-
-.rashi-card {
+.rashi-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  max-width: 800px;
+}
+.rashi-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
   background: var(--navy-card);
   border: 0.5px solid var(--rule);
-  border-radius: 6px;
-  padding: 1rem 0.5rem;
-  text-align: center;
+  border-radius: 100px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 13px;
+  font-family: 'Outfit', sans-serif;
+  color: var(--cream-dim);
+  white-space: nowrap;
+  user-select: none;
 }
-.rashi-card:hover { border-color: var(--gold); background: var(--navy-light); transform: translateY(-2px); }
-.rashi-card.active { border-color: var(--gold); background: rgba(196,165,90,0.08); }
-.rashi-emoji { font-size: 28px; margin-bottom: 0.4rem; display: block; }
-.rashi-name { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--cream-dim); letter-spacing: 0.05em; }
+.rashi-pill:hover {
+  border-color: rgba(196,165,90,0.5);
+  color: var(--white);
+  background: rgba(196,165,90,0.06);
+  transform: translateY(-1px);
+}
+.rashi-pill.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(196,165,90,0.1);
+}
+.rashi-pill-emoji { font-size: 16px; line-height: 1; }
+.rashi-pill-name { font-weight: 500; }
 
-.rashi-reading-box {
+/* Reading panel */
+.rashi-panel {
   background: var(--navy-card);
-  border: 0.5px solid var(--gold);
-  border-radius: 8px;
-  padding: 2rem;
-  margin-top: 1rem;
-  animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.rashi-reading-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border: 0.5px solid rgba(196,165,90,0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  animation: fadeSlideIn 0.3s ease;
   margin-bottom: 1.5rem;
 }
-.rashi-reading-sign {
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rashi-panel-inner {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: 200px;
+}
+@media (max-width: 640px) {
+  .rashi-panel-inner { grid-template-columns: 1fr; }
+}
+.rashi-panel-left {
+  background: rgba(196,165,90,0.04);
+  border-right: 0.5px solid var(--rule);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+.rashi-panel-sign-emoji { font-size: 44px; line-height: 1; margin-bottom: 0.4rem; }
+.rashi-panel-sign-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 20px;
-  color: var(--gold);
-}
-.rashi-close {
-  background: none;
-  border: none;
-  color: var(--cream-dim);
   font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s;
+  color: var(--white);
+  font-weight: 400;
 }
-.rashi-close:hover { color: var(--white); }
+.rashi-panel-sign-sub {
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.rashi-panel-date {
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,165,90,0.3);
+  margin-top: 0.4rem;
+}
+.rashi-panel-right {
+  padding: 2rem 2.5rem;
+  display: flex;
+  align-items: flex-start;
+}
 .rashi-reading-content {
-  font-size: 14.5px;
+  font-size: 14px;
   color: var(--cream);
-  line-height: 1.8;
+  line-height: 1.85;
+  width: 100%;
 }
+.rashi-reading-content p { margin-bottom: 0.85rem; }
 .rashi-loading {
   color: var(--gold);
   font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  text-align: center;
-  padding: 2rem;
+  font-size: 12px;
   animation: pulse 1.5s ease-in-out infinite;
+  padding: 1rem 0;
 }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.rashi-note {
+  text-align: center;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,165,90,0.25);
+  letter-spacing: 0.04em;
+}
 
 /* ═══════════════════════════════════════════
    HOW IT WORKS

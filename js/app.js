@@ -1423,76 +1423,119 @@ function renderRashiGrid() {
   const grid = document.getElementById('rashi-grid');
   const dateEl = document.getElementById('rashi-today-date');
   if (!grid) return;
+  const today = new Date();
   if (dateEl) {
-    dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    dateEl.textContent = today.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   }
   grid.innerHTML = RASHIS.map((r, i) => `
-    <div class="rashi-card" onclick="getRashiReading(${i})" id="rashi-${i}">
-      <span class="rashi-emoji">${r.emoji}</span>
-      <span class="rashi-name">${r.name}</span>
-    </div>
+    <button class="rashi-pill" onclick="getRashiReading(${i})" id="rashi-pill-${i}">
+      <span class="rashi-pill-emoji">${r.emoji}</span>
+      <span class="rashi-pill-name">${r.name}</span>
+    </button>
   `).join('');
+}
+
+// Date-seeded daily content so it changes every day automatically
+function getDailyContent(idx) {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate() + idx * 37;
+  const rng = (n) => Math.abs((seed * 1103515245 + n * 12345) % n);
+
+  const planets = ['Mercury','Venus','Mars','Jupiter','Saturn','Rahu','Sun','Moon','Ketu'];
+  const energies = ['focused and precise','expansive and bold','charged with tension','deeply reflective','quietly grounded','creatively alive','restless but driven','emotionally heightened'];
+  const focuses = ['your career and long-term direction','a relationship that needs honesty','your financial decisions','your health and daily routine','a creative project you have been delaying','communication with someone important','a decision you have been avoiding','your sense of purpose'];
+  const doActions = [
+    'reach out to someone you owe a conversation',
+    'write down your three non-negotiable priorities this week',
+    'spend 20 minutes away from screens before noon',
+    'revisit a decision you made last month with fresh eyes',
+    'say the thing you have been holding back',
+    'begin something — even one small step counts',
+    'ask for what you actually need today',
+    'clear one thing from your environment that is slowing you down'
+  ];
+  const avoidActions = [
+    'making financial commitments before reading the fine print',
+    'starting new projects before finishing what is open',
+    'reacting before you have all the information',
+    'saying yes when you mean maybe',
+    'comparing your timeline to someone else\'s',
+    'forcing a conclusion before things have settled',
+    'postponing a health concern',
+    'burning energy on people who are not invested in you'
+  ];
+
+  const rashi = RASHIS[idx];
+  const planet = planets[rng(planets.length)];
+  const energy = energies[rng(energies.length)];
+  const focus = focuses[rng(focuses.length)];
+  const doAct = doActions[rng(doActions.length)];
+  const avoidAct = avoidActions[rng(avoidActions.length)];
+  const todayStr = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long' });
+
+  return [
+    `${planet} is active in the sky today, and ${rashi.name} natives will feel it as a pull toward ${energy} thinking. Use this energy deliberately — it will not last past the evening.`,
+    `Your attention today is best directed toward ${focus}. Something in this area has been asking for your clarity, and today the chart supports honest engagement with it.`,
+    `Do: ${doAct}. Avoid: ${avoidAct}.`
+  ].join('\n\n');
 }
 
 async function getRashiReading(idx) {
   const rashi = RASHIS[idx];
-  // Mark active
-  document.querySelectorAll('.rashi-card').forEach(c => c.classList.remove('active'));
-  document.getElementById('rashi-' + idx)?.classList.add('active');
 
-  const box = document.getElementById('rashi-reading-box');
+  // Update pills
+  document.querySelectorAll('.rashi-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById('rashi-pill-' + idx)?.classList.add('active');
+
+  // Show panel
+  const panel = document.getElementById('rashi-reading-box');
   const content = document.getElementById('rashi-reading-content');
-  const signEl = document.getElementById('rashi-reading-sign');
-  box.style.display = 'block';
-  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  if (signEl) signEl.textContent = `${rashi.emoji} ${rashi.name} (${rashi.sign})`;
-  content.innerHTML = '<div class="rashi-loading">☽ Reading the stars for you...</div>';
+  panel.style.display = 'block';
 
-  // Use a free public API or our own prompt
-  const today = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
-  const prompt = `You are a senior Vedic astrologer. Write a brief, specific daily horoscope for ${rashi.name} (${rashi.sign} Rashi) for ${today}. 
-  
-Write 3 short paragraphs: (1) today's planetary energy and its effect on this sign, (2) one specific area of focus — career, relationships, or health — based on current planetary positions, (3) one practical action to take today and one to avoid.
+  // Update left panel info
+  document.getElementById('rashi-panel-emoji').textContent = rashi.emoji;
+  document.getElementById('rashi-panel-name').textContent = rashi.name;
+  document.getElementById('rashi-panel-sub').textContent = rashi.sign + ' Rashi';
+  document.getElementById('rashi-panel-date').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
 
-Keep it under 150 words. Be direct and specific. No generic platitudes. No em dashes. Sound like a real astrologer, not a horoscope app.`;
+  content.innerHTML = '<div class="rashi-loading">☽ Reading the stars...</div>';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  try {
-    // Try to use any available provider key
-    const apiKey = document.getElementById('f-apikey')?.value?.trim();
-    let text = '';
-    if (apiKey && activeProvider === 'claude') {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
-      });
-      const data = await res.json();
-      text = data.content?.[0]?.text || 'Could not load reading.';
-    } else if (apiKey && activeProvider === 'gemini') {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-      const data = await res.json();
-      text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not load reading.';
-    } else {
-      // No key — show sample static reading
-      const actions = ['reach out to someone you have been meaning to reconnect with', 'write down your three priorities this week', 'spend 20 minutes in silence before noon', 'review a decision you made last month', 'speak your truth even if your voice shakes'];
-      const focuses = ['career decisions', 'relationship clarity', 'financial planning', 'health routines', 'creative projects'];
-      const planets = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'];
-      const energies = ['focused', 'expansive', 'charged', 'reflective', 'grounded'];
-      text = `Today, ${rashi.name} natives feel the pull of ${planets[idx % 5]} transiting their chart. Energy is ${energies[idx % 5]} — use it deliberately.\n\nYour attention is drawn to ${focuses[idx % 5]} today. A conversation you have been avoiding needs to happen before evening.\n\nDo: ${actions[idx % 5]}. Avoid: making financial commitments before checking the details twice.\n\nEnter your API key above to get a live, personalised daily reading.`;
-    }
-    content.innerHTML = text.split('\n').filter(l => l.trim()).map(l => `<p style="margin-bottom:0.75rem;font-size:14px;color:var(--cream);line-height:1.8">${l.replace(/\*/g,'')}</p>`).join('');
-  } catch(err) {
-    content.innerHTML = `<p style="color:var(--cream-dim);font-size:13px">Could not load reading. Please try again.</p>`;
+  // Try live API reading first, fall back to daily seeded content
+  const apiKey = document.getElementById('f-apikey')?.value?.trim();
+  if (apiKey) {
+    const today = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    const prompt = `You are a senior Vedic astrologer. Write a brief, specific daily horoscope for ${rashi.name} (${rashi.sign} Rashi) for ${today}. Write exactly 3 short paragraphs: (1) which planet is most active today and how it affects this sign specifically, (2) one area of life to focus on today with a specific reason, (3) one action to take and one to avoid. Under 150 words total. No em dashes. No generic platitudes. Sound like a real astrologer.`;
+    try {
+      let text = '';
+      if (activeProvider === 'claude') {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 250, messages: [{ role: 'user', content: prompt }] })
+        });
+        const data = await res.json();
+        text = data.content?.[0]?.text || '';
+      } else if (activeProvider === 'gemini') {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await res.json();
+        text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      }
+      if (text) {
+        content.innerHTML = text.split('\n').filter(l => l.trim()).map(l =>
+          `<p>${l.trim()}</p>`
+        ).join('');
+        return;
+      }
+    } catch(e) { /* fall through to daily seeded */ }
   }
-}
 
-function closeRashiReading() {
-  document.getElementById('rashi-reading-box').style.display = 'none';
-  document.querySelectorAll('.rashi-card').forEach(c => c.classList.remove('active'));
+  // Daily seeded fallback — changes every day automatically
+  const dailyText = getDailyContent(idx);
+  content.innerHTML = dailyText.split('\n\n').map(p => `<p>${p}</p>`).join('');
 }
 
 // ── Override buildSubject to use new field structure ──

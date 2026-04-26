@@ -143,18 +143,28 @@
       <h2 class="rashi-title">Daily Vedic Horoscope</h2>
       <span class="rashi-date" id="rashi-today-date"></span>
     </div>
-    <div class="rashi-grid" id="rashi-grid">
-      <!-- filled by JS -->
+
+    <div class="rashi-pills-wrap">
+      <div class="rashi-pills" id="rashi-grid"></div>
     </div>
-    <div class="rashi-reading-box" id="rashi-reading-box" style="display:none">
-      <div class="rashi-reading-header">
-        <span class="rashi-reading-sign" id="rashi-reading-sign"></span>
-        <button class="rashi-close" onclick="closeRashiReading()">✕</button>
-      </div>
-      <div class="rashi-reading-content" id="rashi-reading-content">
-        <div class="rashi-loading">☽ Reading the stars for you...</div>
+
+    <div class="rashi-panel" id="rashi-reading-box" style="display:none">
+      <div class="rashi-panel-inner">
+        <div class="rashi-panel-left">
+          <div class="rashi-panel-sign-emoji" id="rashi-panel-emoji"></div>
+          <div class="rashi-panel-sign-name" id="rashi-panel-name"></div>
+          <div class="rashi-panel-sign-sub" id="rashi-panel-sub"></div>
+          <div class="rashi-panel-date" id="rashi-panel-date"></div>
+        </div>
+        <div class="rashi-panel-right">
+          <div class="rashi-reading-content" id="rashi-reading-content">
+            <div class="rashi-loading">☽ Reading the stars...</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <p class="rashi-note">Select your Moon sign for today's reading. Don't know your Moon sign? It's included in your full report.</p>
   </div>
 </section>
 
