@@ -179,17 +179,6 @@ function gv(id) {
   return el.value.replace(/[^ -~]/g, '').trim();
 }
 
-function validate() {
-  const missing = [];
-  if (!gv('f-name')) missing.push('Full Name');
-  if (!gv('f-dob')) missing.push('Date of Birth');
-  if (!gv('f-pob')) missing.push('Place of Birth');
-  if (!gv('f-city')) missing.push('Current City');
-  if (!gv('f-career')) missing.push('Career / Industry');
-  if (!gv('f-question')) missing.push('Your Most Pressing Question');
-  return missing;
-}
-
 // ── Prompt Builder ──
 function buildPrompt(subject, modIds) {
   const modList = modIds
@@ -1566,6 +1555,10 @@ function validate() {
   if (!gv('f-city')) missing.push('Current City');
   if (!gv('f-career')) missing.push('Career / Industry');
   if (!gv('f-question')) missing.push('Your Most Pressing Question');
+  // Image uploads required (partner details are optional)
+  if (!uploadedImages.handwriting) missing.push('Handwriting Sample (Step 04)');
+  if (!uploadedImages.palmLeft && !uploadedImages.palmRight) missing.push('Palm Photo — at least one hand (Step 04)');
+  if (!uploadedImages.face) missing.push('Face Photo (Step 04)');
   return missing;
 }
 
