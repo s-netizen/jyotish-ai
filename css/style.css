@@ -320,7 +320,7 @@ em { font-style: italic; color: var(--gold); }
 }
 .rashi-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, 1fr)
   gap: 0.75rem;
   margin-bottom: 2rem;
 }
@@ -908,7 +908,8 @@ em { font-style: italic; color: var(--gold); }
 .upload-box {
   border: 0.5px dashed rgba(196,165,90,0.2);
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
   transition: border-color 0.25s, background 0.25s;
 }
 .upload-box:hover { border-color: rgba(196,165,90,0.45); background: rgba(196,165,90,0.02); }
@@ -949,7 +950,7 @@ em { font-style: italic; color: var(--gold); }
   color: rgba(196,165,90,0.5);
   cursor: help;
   flex-shrink: 0;
-  position: relative;
+  position: static;
   outline: none;
   z-index: 10;
 }
