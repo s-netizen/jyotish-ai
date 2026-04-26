@@ -37,22 +37,22 @@ let activeProvider = 'claude'; // 'claude' | 'gemini'
 // ── Provider Toggle ──
 function setProvider(p) {
   activeProvider = p;
-  document.getElementById('prov-claude').classList.toggle('active', p === 'claude');
-  document.getElementById('prov-gemini').classList.toggle('active', p === 'gemini');
+  // Re-render tabs
+  const providers = ['claude','gemini','groq','openrouter','mistral','cohere'];
+  const el = document.getElementById('provider-tabs');
+  if (el) {
+    el.innerHTML = providers.map(pr => `
+      <button class="prov-tab ${pr === p ? 'active' : ''}" id="prov-${pr}" onclick="setProvider('${pr}')">${pr.charAt(0).toUpperCase()+pr.slice(1)}</button>
+    `).join('');
+  }
 
   const input = document.getElementById('f-apikey');
-  const label = document.getElementById('apikey-label');
-  const hint  = document.getElementById('apikey-hint');
-
-  if (p === 'claude') {
-    input.placeholder = 'sk-ant-...';
-    label.innerHTML = 'Anthropic API Key <span class="req">*</span>';
-    hint.innerHTML = 'Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · Used only for this session';
-  } else {
-    input.placeholder = 'AIza...';
-    label.innerHTML = 'Gemini API Key <span class="req">*</span>';
-    hint.innerHTML = 'Free key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> · No billing required · Used only for this session';
-  }
+  if (!input) return;
+  const placeholders = {
+    claude: 'sk-ant-...', gemini: 'AIza...', groq: 'gsk_...',
+    openrouter: 'sk-or-...', mistral: 'ms-...', cohere: 'co-...'
+  };
+  input.placeholder = placeholders[p] || 'Paste your API key here';
   input.value = '';
 }
 
@@ -1234,8 +1234,416 @@ function exportReading() {
   a.click();
 }
 
+// ── Provider Tabs Render ──
+function renderProviderTabs() {
+  const el = document.getElementById('provider-tabs');
+  if (!el) return;
+  const providers = ['claude','gemini','groq','openrouter','mistral','cohere'];
+  el.innerHTML = providers.map(p => `
+    <button class="prov-tab ${p === activeProvider ? 'active' : ''}" id="prov-${p}" onclick="setProvider('${p}')">${p.charAt(0).toUpperCase()+p.slice(1)}</button>
+  `).join('');
+}
+
 // ── Razorpay Payment ──
-const RAZORPAY_KEY = 'rzp_live_PASTE_YOUR_KEY_HERE'; // Replace with your Razorpay key
+const RAZORPAY_KEY = 'rzp_live_PASTE_YOUR_KEY_HERE';
+
+function handleGenerateClick() {
+  const apiKey = document.getElementById('f-apikey').value.trim();
+  if (apiKey) {
+    generateReading();
+  } else {
+    openPaymentModal();
+  }
+}
+
+function openPaymentModal() {
+  const name = document.getElementById('f-name').value.trim();
+  const dob  = document.getElementById('f-dob').value.trim();
+  const pob  = document.getElementById('f-pob').value.trim();
+  if (!name || !dob || !pob) {
+    alert('Please fill in your Name, Date of Birth, and Place of Birth before proceeding.');
+    document.getElementById('f-name').focus();
+    return;
+  }
+  document.getElementById('payment-overlay').classList.add('open');
+}
+
+function closePaymentModal(e) {
+  if (e && e.target !== document.getElementById('payment-overlay')) return;
+  document.getElementById('payment-overlay').classList.remove('open');
+}
+
+function initiateRazorpay() {
+  const email = document.getElementById('payment-email').value.trim();
+  const name  = document.getElementById('f-name').value.trim();
+  const options = {
+    key: RAZORPAY_KEY,
+    amount: 99900,
+    currency: 'INR',
+    name: 'Jyotish',
+    description: 'Vedic Master Reading — 23 Modules',
+    prefill: { name, email: email || '' },
+    theme: { color: '#c4a55a' },
+    handler: function(response) {
+      document.getElementById('payment-overlay').classList.remove('open');
+      window._paymentId = response.razorpay_payment_id;
+      generateReading(true);
+    }
+  };
+  try {
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', r => alert('Payment failed: ' + r.error.description));
+    rzp.open();
+  } catch(err) {
+    alert('Razorpay not loaded. Please check your internet connection.');
+  }
+}
+
+function onPaymentSuccess(response) {
+  window._paymentId = response.razorpay_payment_id;
+  generateReading(true);
+}
+
+// ── FAQ Toggle ──
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── Mobile Nav ──
+function toggleMobileNav() {
+  document.getElementById('nav-mobile').classList.toggle('open');
+}
+
+// ── DOB Auto-slash formatting ──
+function initDobField(id) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  input.addEventListener('input', function(e) {
+    let val = this.value.replace(/\D/g, '');
+    if (val.length >= 3 && val.length <= 4) val = val.slice(0,2) + '/' + val.slice(2);
+    else if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4,8);
+    this.value = val;
+  });
+}
+
+// ── Time Dropdowns ──
+function initTimeDropdowns(hId, mId) {
+  const hSel = document.getElementById(hId);
+  const mSel = document.getElementById(mId);
+  if (!hSel || !mSel) return;
+  for (let h = 1; h <= 12; h++) {
+    const opt = document.createElement('option');
+    opt.value = String(h).padStart(2, '0');
+    opt.textContent = String(h).padStart(2, '0');
+    hSel.appendChild(opt);
+  }
+  for (let m = 0; m < 60; m++) {
+    const opt = document.createElement('option');
+    opt.value = String(m).padStart(2, '0');
+    opt.textContent = String(m).padStart(2, '0');
+    mSel.appendChild(opt);
+  }
+}
+
+function getTimeValue(hId, mId, ampmId) {
+  const h = document.getElementById(hId)?.value || '';
+  const m = document.getElementById(mId)?.value || '';
+  const ampm = document.getElementById(ampmId)?.value || 'AM';
+  if (!h || !m) return '';
+  return `${h}:${m} ${ampm}`;
+}
+
+// ── City Autocomplete (Nominatim) ──
+let _acTimers = {};
+async function cityAutocomplete(inputId, dropdownId) {
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  if (!input || !dropdown) return;
+  const q = input.value.trim();
+  if (q.length < 3) { dropdown.innerHTML = ''; return; }
+
+  clearTimeout(_acTimers[inputId]);
+  _acTimers[inputId] = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&addressdetails=1`, {
+        headers: { 'Accept-Language': 'en' }
+      });
+      const data = await res.json();
+      dropdown.innerHTML = data.map(p => {
+        const display = p.display_name.split(',').slice(0,3).join(',');
+        return `<div class="ac-item" onclick="selectCity('${inputId}','${dropdownId}','${display.replace(/'/g,"\\'")}')"> ${display}</div>`;
+      }).join('');
+    } catch(e) { dropdown.innerHTML = ''; }
+  }, 350);
+}
+
+function selectCity(inputId, dropdownId, value) {
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  if (input) input.value = value;
+  if (dropdown) dropdown.innerHTML = '';
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.autocomplete-wrap')) {
+    document.querySelectorAll('.ac-dropdown').forEach(d => d.innerHTML = '');
+  }
+});
+
+// ── Modules Pills Display ──
+function renderModulesPills() {
+  const container = document.getElementById('modules-pills-display');
+  if (!container) return;
+  container.innerHTML = MODULES.map(m =>
+    `<span class="module-pill">${String(m.id).padStart(2,'0')} ${m.name}</span>`
+  ).join('');
+}
+
+// ── Daily Rashi Horoscope ──
+const RASHIS = [
+  { name: 'Aries',       emoji: '🐏', sign: 'Mesha' },
+  { name: 'Taurus',      emoji: '🐂', sign: 'Vrishabha' },
+  { name: 'Gemini',      emoji: '👫', sign: 'Mithuna' },
+  { name: 'Cancer',      emoji: '🦀', sign: 'Karka' },
+  { name: 'Leo',         emoji: '🦁', sign: 'Simha' },
+  { name: 'Virgo',       emoji: '👸', sign: 'Kanya' },
+  { name: 'Libra',       emoji: '⚖️', sign: 'Tula' },
+  { name: 'Scorpio',     emoji: '🦂', sign: 'Vrishchika' },
+  { name: 'Sagittarius', emoji: '🏹', sign: 'Dhanu' },
+  { name: 'Capricorn',   emoji: '🐐', sign: 'Makara' },
+  { name: 'Aquarius',    emoji: '🏺', sign: 'Kumbha' },
+  { name: 'Pisces',      emoji: '🐟', sign: 'Meena' },
+];
+
+function renderRashiGrid() {
+  const grid = document.getElementById('rashi-grid');
+  const dateEl = document.getElementById('rashi-today-date');
+  if (!grid) return;
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  grid.innerHTML = RASHIS.map((r, i) => `
+    <div class="rashi-card" onclick="getRashiReading(${i})" id="rashi-${i}">
+      <span class="rashi-emoji">${r.emoji}</span>
+      <span class="rashi-name">${r.name}</span>
+    </div>
+  `).join('');
+}
+
+async function getRashiReading(idx) {
+  const rashi = RASHIS[idx];
+  // Mark active
+  document.querySelectorAll('.rashi-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('rashi-' + idx)?.classList.add('active');
+
+  const box = document.getElementById('rashi-reading-box');
+  const content = document.getElementById('rashi-reading-content');
+  const signEl = document.getElementById('rashi-reading-sign');
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (signEl) signEl.textContent = `${rashi.emoji} ${rashi.name} (${rashi.sign})`;
+  content.innerHTML = '<div class="rashi-loading">☽ Reading the stars for you...</div>';
+
+  // Use a free public API or our own prompt
+  const today = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+  const prompt = `You are a senior Vedic astrologer. Write a brief, specific daily horoscope for ${rashi.name} (${rashi.sign} Rashi) for ${today}. 
+  
+Write 3 short paragraphs: (1) today's planetary energy and its effect on this sign, (2) one specific area of focus — career, relationships, or health — based on current planetary positions, (3) one practical action to take today and one to avoid.
+
+Keep it under 150 words. Be direct and specific. No generic platitudes. No em dashes. Sound like a real astrologer, not a horoscope app.`;
+
+  try {
+    // Try to use any available provider key
+    const apiKey = document.getElementById('f-apikey')?.value?.trim();
+    let text = '';
+    if (apiKey && activeProvider === 'claude') {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await res.json();
+      text = data.content?.[0]?.text || 'Could not load reading.';
+    } else if (apiKey && activeProvider === 'gemini') {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      const data = await res.json();
+      text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not load reading.';
+    } else {
+      // No key — show sample static reading
+      const actions = ['reach out to someone you have been meaning to reconnect with', 'write down your three priorities this week', 'spend 20 minutes in silence before noon', 'review a decision you made last month', 'speak your truth even if your voice shakes'];
+      const focuses = ['career decisions', 'relationship clarity', 'financial planning', 'health routines', 'creative projects'];
+      const planets = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'];
+      const energies = ['focused', 'expansive', 'charged', 'reflective', 'grounded'];
+      text = `Today, ${rashi.name} natives feel the pull of ${planets[idx % 5]} transiting their chart. Energy is ${energies[idx % 5]} — use it deliberately.\n\nYour attention is drawn to ${focuses[idx % 5]} today. A conversation you have been avoiding needs to happen before evening.\n\nDo: ${actions[idx % 5]}. Avoid: making financial commitments before checking the details twice.\n\nEnter your API key above to get a live, personalised daily reading.`;
+    }
+    content.innerHTML = text.split('\n').filter(l => l.trim()).map(l => `<p style="margin-bottom:0.75rem;font-size:14px;color:var(--cream);line-height:1.8">${l.replace(/\*/g,'')}</p>`).join('');
+  } catch(err) {
+    content.innerHTML = `<p style="color:var(--cream-dim);font-size:13px">Could not load reading. Please try again.</p>`;
+  }
+}
+
+function closeRashiReading() {
+  document.getElementById('rashi-reading-box').style.display = 'none';
+  document.querySelectorAll('.rashi-card').forEach(c => c.classList.remove('active'));
+}
+
+// ── Override buildSubject to use new field structure ──
+function buildSubjectNew() {
+  const tob = getTimeValue('f-tob-h', 'f-tob-m', 'f-tob-ampm');
+  const ptob = getTimeValue('f-ptob-h', 'f-ptob-m', 'f-ptob-ampm');
+  return {
+    name: gv('f-name'),
+    phone: gv('f-phone'),
+    dob: gv('f-dob'),
+    tob: tob || 'Unknown',
+    pob: gv('f-pob'),
+    city: gv('f-city'),
+    career: gv('f-career'),
+    question: gv('f-question'),
+    partner: gv('f-partner'),
+    pdob: gv('f-pdob'),
+    ppob: gv('f-ppob'),
+    ptob: ptob,
+    state: gv('f-question'), // use question as state context too
+    reloc: '',
+  };
+}
+
+// ── Validation override ──
+function validate() {
+  const missing = [];
+  if (!gv('f-name')) missing.push('Full Name');
+  if (!gv('f-dob')) missing.push('Date of Birth');
+  if (!gv('f-pob')) missing.push('Place of Birth');
+  if (!gv('f-city')) missing.push('Current City');
+  if (!gv('f-career')) missing.push('Career / Industry');
+  if (!gv('f-question')) missing.push('Your Most Pressing Question');
+  return missing;
+}
+
+// ── generateReading override to use new subject builder ──
+async function generateReading(paidMode) {
+  const missing = validate();
+  const errEl = document.getElementById('err-area');
+  if (missing.length) {
+    errEl.innerHTML = `<div class="err-msg">Please fill in: ${missing.join(', ')}</div>`;
+    errEl.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  errEl.innerHTML = '';
+
+  const subject = buildSubjectNew();
+  const apiKey = paidMode ? '' : gv('f-apikey');
+  const modIds = [...Array(23)].map((_,i) => i+1); // all 23
+
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('new-reading-row').style.display = 'flex';
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('results-meta').textContent =
+    `${subject.name} · ${subject.dob} · 23 modules · ${new Date().toLocaleTimeString()}`;
+
+  const btn = document.getElementById('run-btn');
+  const btnText = document.getElementById('btn-text');
+  btn.disabled = true;
+
+  const progressMsgs = [
+    'Casting your birth chart...',
+    'Mapping planetary positions...',
+    'Reading your Mahadasha...',
+    'Analysing karmic patterns...',
+    'Decoding your Nakshatra...',
+    'Calculating Dasha timeline...',
+    'Synthesising your blueprint...',
+  ];
+  let progIdx = 0;
+  btnText.textContent = progressMsgs[0];
+  const progInterval = setInterval(() => {
+    progIdx = (progIdx + 1) % progressMsgs.length;
+    btnText.textContent = progressMsgs[progIdx];
+  }, 2800);
+
+  readingResults = {};
+  const batches = chunkArray(modIds, 4);
+  renderTabsLoading(modIds);
+
+  const CONCURRENCY = 2;
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+  let completedBatches = 0;
+
+  async function runBatch(batch, idx) {
+    await delay(Math.floor(idx / CONCURRENCY) * 800);
+    const prompt = buildPrompt(subject, batch);
+    try {
+      const text = await callAPI(apiKey, prompt, batch);
+      batch.forEach(id => {
+        const m = MODULES.find(x => x.id === id);
+        if (!m) return;
+        readingResults[id] = { name: m.name, text: extractModuleText(text, id, m.name) };
+        markTabReady(id);
+      });
+    } catch (e) {
+      const isRateLimit = e.message && (e.message.includes('529') || e.message.includes('rate') || e.message.includes('overloaded'));
+      if (isRateLimit) {
+        await delay(5000);
+        try {
+          const text = await callAPI(apiKey, prompt, batch);
+          batch.forEach(id => {
+            const m = MODULES.find(x => x.id === id);
+            if (!m) return;
+            readingResults[id] = { name: m.name, text: extractModuleText(text, id, m.name) };
+            markTabReady(id);
+          });
+        } catch(e2) {
+          batch.forEach(id => {
+            const m = MODULES.find(x => x.id === id);
+            readingResults[id] = { name: m ? m.name : '', text: 'Error: ' + e2.message };
+            markTabReady(id);
+          });
+        }
+      } else {
+        batch.forEach(id => {
+          const m = MODULES.find(x => x.id === id);
+          readingResults[id] = { name: m ? m.name : '', text: 'Error: ' + e.message };
+          markTabReady(id);
+        });
+      }
+    }
+    completedBatches++;
+    updateProgress(completedBatches, batches.length, modIds.length);
+  }
+
+  await Promise.all(batches.map((batch, idx) => runBatch(batch, idx)));
+
+  if (!currentTab || !readingResults[currentTab]) {
+    const firstDone = modIds.find(id => readingResults[id]);
+    if (firstDone) showTab(firstDone);
+  }
+
+  btnText.textContent = 'Get My Reading';
+  btn.disabled = false;
+  clearInterval(progInterval);
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  renderRashiGrid();
+  renderModulesPills();
+  initDobField('f-dob');
+  initDobField('f-pdob');
+  initTimeDropdowns('f-tob-h', 'f-tob-m');
+  initTimeDropdowns('f-ptob-h', 'f-ptob-m');
+  renderProviderTabs();
+  // No module overview grid or chips needed
+});
+
 
 function handleGenerateClick() {
   const apiKey = document.getElementById('f-apikey').value.trim();
