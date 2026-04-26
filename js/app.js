@@ -803,16 +803,358 @@ function newReading() {
   document.getElementById('reading-form').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── PDF Export (Full Rewrite) ──
-let _pdfBlob = null; // store for iframe preview
+// ── PDF Engine — Dark Charcoal Design ──
+let _pdfBlob = null;
 
 function triggerPDFDownload() {
   if (!_pdfBlob) return;
+  const subjectName = window._lastReadingSubject?.name || 'Reading';
   const a = document.createElement('a');
   a.href = URL.createObjectURL(_pdfBlob);
-  const subjectName = document.getElementById('f-name').value.trim() || 'Subject';
-  a.download = 'Jyotish-Reading-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
+  a.download = 'Jyotish-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
   a.click();
+}
+
+async function buildAndShowPDF(rawText, subject) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const W = 210, H = 297;
+  const mL = 18, mR = 18, mT = 20, mB = 24;
+  const cW = W - mL - mR;
+
+  // Colour palette — dark charcoal like reference image
+  const BG      = [38, 35, 32];     // dark charcoal
+  const BG_CARD = [48, 44, 40];     // slightly lighter card
+  const GOLD    = [196, 169, 100];  // warm gold
+  const GOLD_LT = [228, 210, 160];  // light gold
+  const WHITE   = [240, 236, 226];  // warm white
+  const DIM     = [140, 128, 108];  // dimmed text
+  const RULE    = [70, 62, 52];     // subtle rule
+
+  function fillBG() {
+    doc.setFillColor(...BG);
+    doc.rect(0, 0, W, H, 'F');
+  }
+
+  function goldRule(y, w) {
+    doc.setDrawColor(...GOLD);
+    doc.setLineWidth(0.3);
+    doc.line(mL, y, mL + (w || cW), y);
+  }
+
+  function dimRule(y) {
+    doc.setDrawColor(...RULE);
+    doc.setLineWidth(0.2);
+    doc.line(mL, y, W - mR, y);
+  }
+
+  function starDots() {
+    const pts = [[25,20],[185,30],[60,270],[155,260],[195,55],[20,240],[108,12],[170,280]];
+    doc.setFillColor(255,255,255);
+    pts.forEach(([x,y]) => doc.circle(x, y, 0.3, 'F'));
+  }
+
+  function pageFooter(n, total) {
+    dimRule(H - 16);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...DIM);
+    doc.text('JYOTISH  ·  VEDIC LIFE READING', mL, H - 9);
+    doc.text(String(n) + ' / ' + String(total), W - mR, H - 9, { align: 'right' });
+  }
+
+  // Strip markdown artifacts
+  function cleanText(raw) {
+    return raw
+      .replace(/\r\n/g,'\n')
+      .replace(/---+/g,'').replace(/===+/g,'')
+      .replace(/\*\*(.*?)\*\*/g,'$1').replace(/\*(.*?)\*/g,'$1')
+      .replace(/^#{1,6}\s*/gm,'')
+      .replace(/`[^`]*`/g,'')
+      .replace(/--/g,',')   // catch any em-dash variants
+      .replace(/\u2014/g,',') // actual em dash
+      .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+  }
+
+  // Parse chapters from text
+  function parseChapters(text) {
+    const cleaned = cleanText(text);
+    const lines = cleaned.split('\n');
+    const chapters = [];
+    let current = null;
+    lines.forEach(line => {
+      const t = line.trim();
+      if (/^chapter\s+\d+:/i.test(t) || /^##\s*chapter/i.test(t)) {
+        if (current) chapters.push(current);
+        current = { title: t.replace(/^#+\s*/,'').replace(/^chapter\s+\d+:\s*/i,'').trim(), lines: [] };
+      } else if (current) {
+        current.lines.push(t);
+      }
+    });
+    if (current) chapters.push(current);
+
+    // If no chapters parsed, treat as single chapter
+    if (chapters.length === 0) {
+      chapters.push({ title: 'Your Reading', lines: lines.map(l => l.trim()) });
+    }
+    return chapters;
+  }
+
+  // Render text content onto page, return new y
+  function renderContent(lines, startY, pageNum, totalPages) {
+    let y = startY;
+    const LINE_H = 5.4;
+
+    function newPage() {
+      pageFooter(pageNum, totalPages);
+      doc.addPage();
+      pageNum++;
+      fillBG(); starDots();
+      y = mT + 8;
+      // continuation bar
+      doc.setFillColor(...BG_CARD);
+      doc.rect(0, 0, W, 12, 'F');
+      doc.setFont('helvetica','italic');
+      doc.setFontSize(7);
+      doc.setTextColor(...DIM);
+      doc.text('continued', mL, 8.5);
+      dimRule(12);
+      y = 22;
+    }
+
+    lines.forEach(line => {
+      if (!line) { y += 2.5; return; }
+
+      if (y > H - mB - 10) newPage();
+
+      // Bottom line styling
+      if (/^bottom line:/i.test(line)) {
+        y += 3;
+        if (y > H - mB - 16) newPage();
+        doc.setFillColor(...BG_CARD);
+        const blText = line.replace(/^bottom line:\s*/i,'').trim();
+        const wrapped = doc.setFont('helvetica','bolditalic').setFontSize(10) && doc.splitTextToSize(blText, cW - 14);
+        const boxH = 8 + wrapped.length * 5.5;
+        doc.rect(mL, y - 3, cW, boxH, 'F');
+        doc.setDrawColor(...GOLD);
+        doc.setLineWidth(1.5);
+        doc.line(mL, y - 3, mL, y - 3 + boxH);
+        doc.setLineWidth(0.2);
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...GOLD);
+        doc.text('BOTTOM LINE', mL + 5, y + 1.5);
+        doc.setFont('helvetica','bolditalic');
+        doc.setFontSize(10);
+        doc.setTextColor(...GOLD_LT);
+        let by = y + 7;
+        wrapped.forEach(wl => { doc.text(wl, mL + 5, by); by += 5.5; });
+        y = by + 4;
+        return;
+      }
+
+      // Table row detection
+      if (line.startsWith('|') && line.includes('|', 1)) {
+        if (line.replace(/[\s|:-]/g,'').length === 0) return; // separator row
+        const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+        if (y > H - mB - 10) newPage();
+        const isHeader = cells.some(c => /^(planet|sign|house|nakshatra)/i.test(c));
+        doc.setFillColor(...(isHeader ? [55, 50, 45] : BG_CARD));
+        doc.rect(mL, y - 3.5, cW, 8, 'F');
+        doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...(isHeader ? GOLD : WHITE));
+        const colW = cW / Math.max(cells.length, 1);
+        cells.forEach((cell, i) => {
+          doc.text(cell.slice(0,20), mL + 1 + i * colW, y + 1);
+        });
+        y += 8;
+        return;
+      }
+
+      // Normal paragraph
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...WHITE);
+      const wrapped = doc.splitTextToSize(line, cW);
+      wrapped.forEach(wl => {
+        if (y > H - mB - 8) newPage();
+        doc.text(wl, mL, y);
+        y += LINE_H;
+      });
+      y += 1.5;
+    });
+
+    return { y, pageNum };
+  }
+
+  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+  const chapters = parseChapters(rawText);
+  const totalPages = chapters.length + 1; // +1 for cover
+
+  // ── COVER PAGE ──
+  fillBG();
+
+  // Top ornamental line
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(0.4);
+  doc.line(mL, 28, W - mR, 28);
+  doc.line(mL, 30, W - mR, 30);
+
+  // Moth/butterfly symbol (geometric approximation)
+  doc.setFillColor(...GOLD);
+  doc.ellipse(W/2 - 8, 42, 7, 4, 'F');
+  doc.ellipse(W/2 + 8, 42, 7, 4, 'F');
+  doc.setFillColor(...GOLD_LT);
+  doc.ellipse(W/2 - 5, 44, 4, 2.5, 'F');
+  doc.ellipse(W/2 + 5, 44, 4, 2.5, 'F');
+  doc.setFillColor(...WHITE);
+  doc.circle(W/2, 43, 2, 'F');
+
+  // Brand
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...DIM);
+  doc.setCharSpace(3);
+  doc.text('Jyotish', W/2, 55, { align: 'center' });
+  doc.setCharSpace(0);
+
+  // Big title
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(38);
+  doc.setTextColor(...WHITE);
+  doc.text('VEDIC', W/2, 90, { align: 'center' });
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(38);
+  doc.text('LIFE READING', W/2, 108, { align: 'center' });
+
+  // Gold rule
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(0.3);
+  doc.line(W/2 - 40, 116, W/2 + 40, 116);
+
+  // Star cluster
+  ['✦','·','✦','·','✦'].forEach((s, i) => {
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...GOLD);
+    doc.text(s, W/2 - 20 + i*10, 125, { align: 'center' });
+  });
+
+  // Subject name
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...GOLD_LT);
+  doc.text(subject.name, W/2, 148, { align: 'center' });
+
+  // Born line
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...DIM);
+  doc.text(`Born ${subject.dob}  ·  ${subject.tob}  ·  ${subject.pob}`, W/2, 160, { align: 'center' });
+
+  // Question box
+  if (subject.question) {
+    doc.setFillColor(...BG_CARD);
+    doc.roundedRect(mL + 10, 170, cW - 20, 22, 2, 2, 'F');
+    doc.setDrawColor(...GOLD);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(mL + 10, 170, cW - 20, 22, 2, 2, 'S');
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(9);
+    doc.setTextColor(...GOLD);
+    doc.text('Your question:', W/2, 178, { align: 'center' });
+    doc.setTextColor(...WHITE);
+    doc.setFontSize(10);
+    const qWrapped = doc.splitTextToSize(subject.question, cW - 30);
+    doc.text(qWrapped[0], W/2, 186, { align: 'center' });
+  }
+
+  // Report date
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...DIM);
+  doc.setCharSpace(1.5);
+  doc.text('REPORT DATE  ·  ' + today.toUpperCase(), W/2, 215, { align: 'center' });
+  doc.setCharSpace(0);
+
+  // Chapter count
+  doc.setFontSize(8);
+  doc.setTextColor(...GOLD);
+  doc.text(chapters.length + ' CHAPTERS  ·  PERSONALISED ANALYSIS', W/2, 224, { align: 'center' });
+
+  // Bottom ornamental lines
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(0.4);
+  doc.line(mL, H - 28, W - mR, H - 28);
+  doc.line(mL, H - 26, W - mR, H - 26);
+
+  // Footer moth
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7);
+  doc.setTextColor(...DIM);
+  doc.text('For self-awareness and insight only. Not medical, legal or financial advice.', W/2, H - 16, { align: 'center' });
+
+  // ── CHAPTER PAGES ──
+  let pageNum = 2;
+
+  chapters.forEach((chapter, ci) => {
+    doc.addPage();
+    fillBG();
+    starDots();
+
+    // Chapter header bar
+    doc.setFillColor(...BG_CARD);
+    doc.rect(0, 0, W, 32, 'F');
+
+    // Gold left accent
+    doc.setFillColor(...GOLD);
+    doc.rect(0, 0, 3, 32, 'F');
+
+    // Chapter number
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...GOLD);
+    doc.setCharSpace(2);
+    doc.text('CHAPTER ' + String(ci + 1).padStart(2,'0'), mL + 3, 13);
+    doc.setCharSpace(0);
+
+    // Chapter title
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(16);
+    doc.setTextColor(...WHITE);
+    const titleLines = doc.splitTextToSize(chapter.title.toUpperCase(), cW - 10);
+    titleLines.forEach((tl, ti) => doc.text(tl, mL + 3, 24 + ti * 7));
+
+    dimRule(32);
+
+    let y = 44;
+
+    const result = renderContent(chapter.lines, y, pageNum, totalPages);
+    pageNum = result.pageNum;
+
+    pageFooter(pageNum, totalPages);
+    pageNum++;
+  });
+
+  // Generate blob and show in iframe
+  const blob = doc.output('blob');
+  _pdfBlob = blob;
+  const url = URL.createObjectURL(blob);
+
+  const previewSection = document.getElementById('pdf-preview-section');
+  const iframe = document.getElementById('pdf-iframe');
+  if (previewSection && iframe) {
+    iframe.src = url;
+    previewSection.style.display = 'block';
+    previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Show download button only
+  document.getElementById('new-reading-row').style.display = 'none';
+  document.getElementById('result-content').innerHTML = '';
+  document.getElementById('result-tabs').innerHTML = '';
 }
 
 async function exportPDF() {
@@ -1637,7 +1979,7 @@ function validate() {
   return missing;
 }
 
-// ── generateReading override to use new subject builder ──
+// ── generateReading — single call, straight to PDF ──
 async function generateReading(paidMode) {
   const missing = validate();
   const errEl = document.getElementById('err-area');
@@ -1650,94 +1992,121 @@ async function generateReading(paidMode) {
 
   const subject = buildSubjectNew();
   const apiKey = paidMode ? '' : gv('f-apikey');
-  const modIds = [...Array(23)].map((_,i) => i+1); // all 23
 
-  document.getElementById('results-section').style.display = 'block';
-  document.getElementById('new-reading-row').style.display = 'flex';
-  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
-  document.getElementById('results-meta').textContent =
-    `${subject.name} · ${subject.dob} · 23 modules · ${new Date().toLocaleTimeString()}`;
-
+  // Show loading state
   const btn = document.getElementById('run-btn');
   const btnText = document.getElementById('btn-text');
   btn.disabled = true;
 
   const progressMsgs = [
     'Casting your birth chart...',
-    'Mapping planetary positions...',
     'Reading your Mahadasha...',
     'Analysing karmic patterns...',
     'Decoding your Nakshatra...',
-    'Calculating Dasha timeline...',
-    'Synthesising your blueprint...',
+    'Mapping planetary positions...',
+    'Writing your story...',
+    'Preparing your PDF...',
   ];
   let progIdx = 0;
   btnText.textContent = progressMsgs[0];
   const progInterval = setInterval(() => {
     progIdx = (progIdx + 1) % progressMsgs.length;
     btnText.textContent = progressMsgs[progIdx];
-  }, 2800);
+  }, 3500);
 
-  readingResults = {};
-  const batches = chunkArray(modIds, 4);
-  renderTabsLoading(modIds);
+  // Show loading spinner only — no blue reading screen
+  const resultsSection = document.getElementById('results-section');
+  resultsSection.style.display = 'block';
+  resultsSection.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('result-tabs').innerHTML = '';
+  document.getElementById('result-content').innerHTML = `
+    <div style="text-align:center;padding:4rem 2rem">
+      <div style="font-size:42px;color:#c4a55a;animation:pulse 2s ease-in-out infinite;margin-bottom:1.5rem">☽</div>
+      <p style="font-family:'DM Mono',monospace;font-size:13px;color:rgba(196,165,90,0.6);letter-spacing:0.1em" id="loading-msg-text">Casting your birth chart...</p>
+      <p style="font-size:12px;color:rgba(212,203,184,0.3);margin-top:1rem;font-family:'DM Mono',monospace">Your reading typically takes 3-5 minutes. Your PDF will appear below when ready.</p>
+    </div>`;
+  document.getElementById('new-reading-row').style.display = 'none';
 
-  const CONCURRENCY = 2;
-  const delay = ms => new Promise(res => setTimeout(res, ms));
-  let completedBatches = 0;
+  // Sync loading text with button
+  const loadingMsgEl = document.getElementById('loading-msg-text');
+  const syncInterval = setInterval(() => {
+    if (loadingMsgEl) loadingMsgEl.textContent = progressMsgs[progIdx];
+  }, 500);
 
-  async function runBatch(batch, idx) {
-    await delay(Math.floor(idx / CONCURRENCY) * 800);
-    const prompt = buildPrompt(subject, batch);
-    try {
-      const text = await callAPI(apiKey, prompt, batch);
-      batch.forEach(id => {
-        const m = MODULES.find(x => x.id === id);
-        if (!m) return;
-        readingResults[id] = { name: m.name, text: extractModuleText(text, id, m.name) };
-        markTabReady(id);
-      });
-    } catch (e) {
-      const isRateLimit = e.message && (e.message.includes('529') || e.message.includes('rate') || e.message.includes('overloaded'));
-      if (isRateLimit) {
-        await delay(5000);
-        try {
-          const text = await callAPI(apiKey, prompt, batch);
-          batch.forEach(id => {
-            const m = MODULES.find(x => x.id === id);
-            if (!m) return;
-            readingResults[id] = { name: m.name, text: extractModuleText(text, id, m.name) };
-            markTabReady(id);
-          });
-        } catch(e2) {
-          batch.forEach(id => {
-            const m = MODULES.find(x => x.id === id);
-            readingResults[id] = { name: m ? m.name : '', text: 'Error: ' + e2.message };
-            markTabReady(id);
-          });
-        }
-      } else {
-        batch.forEach(id => {
-          const m = MODULES.find(x => x.id === id);
-          readingResults[id] = { name: m ? m.name : '', text: 'Error: ' + e.message };
-          markTabReady(id);
-        });
-      }
+  try {
+    // Build single unified prompt
+    const prompt = buildPrompt(subject, []);
+
+    // Build messages with images
+    const content = [];
+    if (uploadedImages.handwriting) {
+      content.push({ type: 'image', source: { type: 'base64', media_type: uploadedImages.handwriting.type, data: uploadedImages.handwriting.data }});
+      content.push({ type: 'text', text: 'This is the handwriting sample. Analyse it in Chapter 2.' });
     }
-    completedBatches++;
-    updateProgress(completedBatches, batches.length, modIds.length);
-  }
+    if (uploadedImages.palmLeft) {
+      content.push({ type: 'image', source: { type: 'base64', media_type: uploadedImages.palmLeft.type, data: uploadedImages.palmLeft.data }});
+      content.push({ type: 'text', text: 'This is the LEFT palm. Analyse in Chapter 2.' });
+    }
+    if (uploadedImages.palmRight) {
+      content.push({ type: 'image', source: { type: 'base64', media_type: uploadedImages.palmRight.type, data: uploadedImages.palmRight.data }});
+      content.push({ type: 'text', text: 'This is the RIGHT palm. Analyse in Chapter 2.' });
+    }
+    if (uploadedImages.face) {
+      content.push({ type: 'image', source: { type: 'base64', media_type: uploadedImages.face.type, data: uploadedImages.face.data }});
+      content.push({ type: 'text', text: 'This is the face photo. Analyse in Chapter 2.' });
+    }
+    content.push({ type: 'text', text: prompt });
 
-  await Promise.all(batches.map((batch, idx) => runBatch(batch, idx)));
+    let fullText = '';
 
-  if (!currentTab || !readingResults[currentTab]) {
-    const firstDone = modIds.find(id => readingResults[id]);
-    if (firstDone) showTab(firstDone);
+    if (!apiKey || activeProvider === 'claude') {
+      const key = apiKey || '';
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 8000,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content }]
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      fullText = data.content?.[0]?.text || '';
+    } else {
+      fullText = await callAPI(apiKey, prompt, []);
+    }
+
+    if (!fullText) throw new Error('No content returned from API');
+
+    // Store for PDF generation
+    window._lastReadingText = fullText;
+    window._lastReadingSubject = subject;
+
+    // Hide loading, generate PDF immediately
+    document.getElementById('result-content').innerHTML = '';
+    clearInterval(progInterval);
+    clearInterval(syncInterval);
+
+    await buildAndShowPDF(fullText, subject);
+
+  } catch (err) {
+    clearInterval(progInterval);
+    clearInterval(syncInterval);
+    document.getElementById('result-content').innerHTML = `
+      <div style="padding:2rem;color:#e88080;font-family:'DM Mono',monospace;font-size:13px">
+        Error: ${err.message}. Please check your API key and try again.
+      </div>`;
   }
 
   btnText.textContent = 'Get My Reading';
   btn.disabled = false;
-  clearInterval(progInterval);
 }
 
 // ── Init ──
