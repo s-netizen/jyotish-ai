@@ -180,17 +180,14 @@ function gv(id) {
 }
 
 function validate() {
-  const required = [
-    ['f-name', 'Full Name'],
-    ['f-dob', 'Date of Birth'],
-    ['f-tob', 'Time of Birth'],
-    ['f-pob', 'Place of Birth'],
-    ['f-city', 'Current City'],
-    ['f-career', 'Career'],
-    ['f-state', 'Current State'],
-    ['f-apikey', 'API Key'],
-  ];
-  return required.filter(([id]) => !gv(id)).map(([, label]) => label);
+  const missing = [];
+  if (!gv('f-name')) missing.push('Full Name');
+  if (!gv('f-dob')) missing.push('Date of Birth');
+  if (!gv('f-pob')) missing.push('Place of Birth');
+  if (!gv('f-city')) missing.push('Current City');
+  if (!gv('f-career')) missing.push('Career / Industry');
+  if (!gv('f-question')) missing.push('Your Most Pressing Question');
+  return missing;
 }
 
 // ── Prompt Builder ──
