@@ -1741,3 +1741,47 @@ em { font-style: italic; color: var(--gold); }
   transition: color 0.2s;
 }
 .footer-email:hover { color: var(--gold-lt); }
+
+/* ── USP Bar (What's Inside section) ── */
+.usp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1.75rem 2rem;
+  border: 0.5px solid var(--rule);
+  border-radius: 6px;
+  background: rgba(196,165,90,0.03);
+  margin-top: 2rem;
+}
+.usp-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+  color: var(--cream-dim);
+  letter-spacing: 0.03em;
+}
+.usp-icon { font-size: 16px; }
+.usp-divider { color: var(--rule); font-size: 18px; }
+@media (max-width: 640px) {
+  .usp-bar { flex-direction: column; gap: 0.75rem; }
+  .usp-divider { display: none; }
+}
+
+/* ── Upload USP text ── */
+.upload-usp {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(196,165,90,0.04);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 4px 4px 0;
+}
+.upload-usp-text {
+  font-size: 14px;
+  color: rgba(212,203,184,0.65);
+  line-height: 1.8;
+  font-style: italic;
+}

@@ -106,8 +106,8 @@
   <div class="hero-content">
     <div class="hero-eyebrow-tag">INDIA'S MOST DETAILED VEDIC REPORT</div>
     <h1 class="hero-title">
-      Decode Your Stars.<br/>
-      <em>Understand Your Life.</em>
+      Your birth was not random.<br/>
+      <em>Neither is this reading.</em>
     </h1>
     <p class="hero-sub">A Vedic report written from your exact birth chart. Share what's on your mind. We'll show you what the stars say.</p>
     <div class="hero-cta-row">
@@ -282,10 +282,27 @@
       </div>
     </div>
 
-    <!-- Module pills infographic -->
-    <div class="modules-infographic">
-      <p class="infographic-label">ALL 23 VEDIC MODULES ANALYSED INSIDE YOUR REPORT</p>
-      <div class="modules-pills" id="modules-pills-display"></div>
+    <!-- USP bar -->
+    <div class="usp-bar">
+      <div class="usp-item">
+        <span class="usp-icon">✍</span>
+        <span class="usp-text">Handwriting analysis across 18 traits</span>
+      </div>
+      <div class="usp-divider">·</div>
+      <div class="usp-item">
+        <span class="usp-icon">🤚</span>
+        <span class="usp-text">Both palms read separately</span>
+      </div>
+      <div class="usp-divider">·</div>
+      <div class="usp-item">
+        <span class="usp-icon">◉</span>
+        <span class="usp-text">Face reading (Samudrika Shastra)</span>
+      </div>
+      <div class="usp-divider">·</div>
+      <div class="usp-item">
+        <span class="usp-icon">☽</span>
+        <span class="usp-text">Full Vedic birth chart with 23 modules</span>
+      </div>
     </div>
   </div>
 </section>
@@ -418,10 +435,86 @@
       </div>
     </div>
 
-    <!-- STEP 2: OPTIONAL -->
+    <!-- STEP 2: IMAGE UPLOADS -->
     <div class="form-card">
       <div class="form-card-header">
         <span class="step-num">02</span>
+        <div>
+          <h3>Your Photos</h3>
+          <p>Required — what makes this reading unlike any other</p>
+        </div>
+      </div>
+      <div class="upload-usp">
+        <p class="upload-usp-text">Most Vedic reports analyse only your birth chart. Ours goes further. Your handwriting reveals 18 personality traits invisible in any chart. Your palm lines hold a second map of your life. Your face carries a physiognomic blueprint that confirms or contradicts what the stars say. Together they make the reading accurate in a way pure astrology cannot match.</p>
+      </div>
+      <div class="upload-grid">
+        <div class="upload-box" id="ub-handwriting">
+          <input type="file" id="img-handwriting" accept="image/*" onchange="handleUpload('handwriting', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-handwriting').click()">
+            <div class="upload-icon">✍</div>
+            <div class="upload-title-row">
+              <span class="upload-name">Handwriting Sample</span>
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Write 5–6 lines of natural cursive on unlined paper. Use a pen. Include your signature. Photograph in good light, flat on a surface, no shadows.</span>
+              </span>
+            </div>
+            <div class="upload-sub">5–6 lines · natural script · include signature</div>
+            <div class="upload-meta">GRAPHOLOGY · REQUIRED</div>
+            <div class="upload-preview" id="prev-handwriting"></div>
+          </div>
+        </div>
+        <div class="upload-box" id="ub-palm-left">
+          <input type="file" id="img-palm-left" accept="image/*" onchange="handleUpload('palmLeft', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-palm-left').click()">
+            <div class="upload-icon">🤚</div>
+            <div class="upload-title-row">
+              <span class="upload-name">Left Palm</span>
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Left hand = karmic blueprint. Hold flat, palm up, fingers together. Natural daylight, no flash. Full palm from wrist to fingertips in focus.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Flat · palm up · full hand visible</div>
+            <div class="upload-meta">PALMISTRY · REQUIRED (AT LEAST ONE)</div>
+            <div class="upload-preview" id="prev-palm-left"></div>
+          </div>
+        </div>
+        <div class="upload-box" id="ub-palm-right">
+          <input type="file" id="img-palm-right" accept="image/*" onchange="handleUpload('palmRight', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-palm-right').click()">
+            <div class="upload-icon" style="transform: scaleX(-1);">🤚</div>
+            <div class="upload-title-row">
+              <span class="upload-name">Right Palm</span>
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Right hand = active destiny. Hold flat, palm up, fingers together. Natural daylight. Both hands give the most complete reading.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Flat · palm up · full hand visible</div>
+            <div class="upload-meta">PALMISTRY · BOTH HANDS RECOMMENDED</div>
+            <div class="upload-preview" id="prev-palm-right"></div>
+          </div>
+        </div>
+        <div class="upload-box" id="ub-face">
+          <input type="file" id="img-face" accept="image/*" onchange="handleUpload('face', this)" />
+          <div class="upload-inner" onclick="document.getElementById('img-face').click()">
+            <div class="upload-icon">◉</div>
+            <div class="upload-title-row">
+              <span class="upload-name">Face Photo</span>
+              <span class="upload-tooltip-icon" tabindex="0">?
+                <span class="upload-tooltip-box">Front-facing, natural daylight, no filters, no sunglasses. Neutral expression. Hair away from face. Full face from chin to forehead.</span>
+              </span>
+            </div>
+            <div class="upload-sub">Front-facing · natural light · neutral expression</div>
+            <div class="upload-meta">PHYSIOGNOMY · REQUIRED</div>
+            <div class="upload-preview" id="prev-face"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: PARTNER DETAILS -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span class="step-num">03</span>
         <div>
           <h3>Partner Details <span style="font-size:12px;color:rgba(196,165,90,0.4);font-family:'DM Mono',monospace;font-weight:400">(Optional)</span></h3>
           <p>Only if you want marriage compatibility analysis</p>
@@ -458,13 +551,13 @@
       </div>
     </div>
 
-    <!-- STEP 3: API KEY -->
+    <!-- STEP 4: API KEY (LAST) -->
     <div class="form-card">
       <div class="form-card-header">
-        <span class="step-num">03</span>
+        <span class="step-num">04</span>
         <div>
           <h3>Your API Key</h3>
-          <p>Use your own key (free) or skip and pay ₹999 to use ours</p>
+          <p>Have your own key? Use it free. Otherwise skip and pay ₹999.</p>
         </div>
       </div>
       <div class="provider-tabs" id="provider-tabs"></div>
@@ -472,79 +565,6 @@
         <label for="f-apikey">API KEY <span class="api-key-hint">(OPTIONAL — SKIP TO PAY ₹999)</span></label>
         <input type="password" id="f-apikey" placeholder="Paste your API key here" autocomplete="off" />
         <p class="api-key-note">Your key is used only in your browser. Never stored anywhere.</p>
-      </div>
-    </div>
-
-    <!-- STEP 4: IMAGE UPLOADS -->
-    <div class="form-card">
-      <div class="form-card-header">
-        <span class="step-num">04</span>
-        <div>
-          <h3>Image Uploads</h3>
-          <p>Required — included in your reading package</p>
-        </div>
-      </div>
-      <div class="upload-grid">
-        <div class="upload-box" id="ub-handwriting">
-          <input type="file" id="img-handwriting" accept="image/*" onchange="handleUpload('handwriting', this)" />
-          <div class="upload-inner" onclick="document.getElementById('img-handwriting').click()">
-            <div class="upload-icon">✍</div>
-            <div class="upload-title-row">
-              <span class="upload-name">Handwriting Sample</span>
-              <span class="upload-tooltip-icon" tabindex="0">?
-                <span class="upload-tooltip-box">Write 5–6 lines of natural cursive on unlined paper. Use a pen. Include your signature. Photograph in good light, flat on a surface, no shadows.</span>
-              </span>
-            </div>
-            <div class="upload-sub">5–6 lines · natural script · include signature</div>
-            <div class="upload-meta">MODULE 19 · REQUIRED</div>
-            <div class="upload-preview" id="prev-handwriting"></div>
-          </div>
-        </div>
-        <div class="upload-box" id="ub-palm-left">
-          <input type="file" id="img-palm-left" accept="image/*" onchange="handleUpload('palmLeft', this)" />
-          <div class="upload-inner" onclick="document.getElementById('img-palm-left').click()">
-            <div class="upload-icon">🤚</div>
-            <div class="upload-title-row">
-              <span class="upload-name">Left Palm</span>
-              <span class="upload-tooltip-icon" tabindex="0">?
-                <span class="upload-tooltip-box">Left hand = karmic blueprint. Hold flat, palm up, fingers together. Natural daylight, no flash. Full palm from wrist to fingertips in focus.</span>
-              </span>
-            </div>
-            <div class="upload-sub">Flat · palm up · full hand visible</div>
-            <div class="upload-meta">MODULE 20 · REQUIRED (AT LEAST ONE)</div>
-            <div class="upload-preview" id="prev-palm-left"></div>
-          </div>
-        </div>
-        <div class="upload-box" id="ub-palm-right">
-          <input type="file" id="img-palm-right" accept="image/*" onchange="handleUpload('palmRight', this)" />
-          <div class="upload-inner" onclick="document.getElementById('img-palm-right').click()">
-            <div class="upload-icon" style="transform: scaleX(-1);">🤚</div>
-            <div class="upload-title-row">
-              <span class="upload-name">Right Palm</span>
-              <span class="upload-tooltip-icon" tabindex="0">?
-                <span class="upload-tooltip-box">Right hand = active destiny. Hold flat, palm up, fingers together. Natural daylight. Both hands together give the most complete reading.</span>
-              </span>
-            </div>
-            <div class="upload-sub">Flat · palm up · full hand visible</div>
-            <div class="upload-meta">MODULE 20 · BOTH HANDS RECOMMENDED</div>
-            <div class="upload-preview" id="prev-palm-right"></div>
-          </div>
-        </div>
-        <div class="upload-box" id="ub-face">
-          <input type="file" id="img-face" accept="image/*" onchange="handleUpload('face', this)" />
-          <div class="upload-inner" onclick="document.getElementById('img-face').click()">
-            <div class="upload-icon">◉</div>
-            <div class="upload-title-row">
-              <span class="upload-name">Face Photo</span>
-              <span class="upload-tooltip-icon" tabindex="0">?
-                <span class="upload-tooltip-box">Front-facing, natural daylight, no filters, no sunglasses. Neutral expression. Hair away from face. Full face from chin to forehead.</span>
-              </span>
-            </div>
-            <div class="upload-sub">Front-facing · natural light · neutral expression</div>
-            <div class="upload-meta">MODULE 21 · REQUIRED</div>
-            <div class="upload-preview" id="prev-face"></div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -626,36 +646,36 @@
     <h2 class="section-title">Frequently asked</h2>
     <div class="faq-grid">
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)"><span>How accurate is this report?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Our reports are crafted using authentic Vedic principles — 9 planetary positions, divisional charts, and dasha analysis. Every report is personalised from your exact birth data. Accuracy depends on the precision of your birth time. The more exact your time, the more specific the predictions.</div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How is this different from other astrology reports?</span><span class="faq-arrow">↓</span></div>
+        <div class="faq-a">Most reports analyse only your birth chart. Ours reads three additional layers: your handwriting (18 personality traits), both your palm lines (karmic and active destiny maps), and your face (physiognomic blueprint from Samudrika Shastra). The four systems are then cross-referenced into one coherent story. No other report does this.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>How accurate is the reading?</span><span class="faq-arrow">↓</span></div>
+        <div class="faq-a">Accuracy depends on the quality of your birth data and images. An exact birth time gives the most precise Lagna, Dasha periods, and divisional charts. Clear, well-lit images give the most detailed handwriting, palm, and face analysis. The more precise your inputs, the more specific the output. We recommend re-checking your birth time with family before submitting.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>What technology generates the report?</span><span class="faq-arrow">↓</span></div>
+        <div class="faq-a">The reading is generated using advanced computational analysis trained on classical Vedic texts, graphology systems, and Samudrika Shastra. Each report is computed fresh from your specific data — nothing is templated or pre-written. The analysis is then reviewed before delivery to ensure quality and consistency.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)"><span>What if I don't know my exact birth time?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Mention "time unknown" in the time field. We'll note this and work with planetary positions that don't depend on exact birth time. The report will still cover most areas including career, relationships, karma, and timing windows.</div>
+        <div class="faq-a">Select the closest approximate time and mention "approximate" in your question field. We will note this and work with planetary positions that do not depend on exact birth time. The report will still cover career, relationships, karma, and timing windows. The Lagna and some Dasha periods may be slightly less precise.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)"><span>How long does delivery take?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Your report is delivered to your email within 4–5 hours of payment. If you use your own API key, the reading generates instantly on screen and you can download the PDF immediately.</div>
+        <div class="faq-a">Your report is delivered to your email within 4 to 5 hours of payment confirmation. We do not rush the process. Each report is checked before it goes out. If you have not received it after 6 hours, write to support@jyotishai.in and we will follow up immediately.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)"><span>Is my data stored anywhere?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Your birth data is used only to generate your reading. We do not sell or share your personal data. If you use your own API key, nothing is stored on our servers — everything runs in your browser.</div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Is my data stored or shared?</span><span class="faq-arrow">↓</span></div>
+        <div class="faq-a">Your birth data and images are used only to generate your reading. We do not sell, share, or use your data for any other purpose. Images are processed and not stored long-term. Your report data is retained only long enough to email you the PDF. See our Privacy Policy for full details.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)"><span>What payment methods are accepted?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">All major options via Razorpay — UPI (GPay, PhonePe, Paytm), credit/debit cards (Visa, Mastercard, Rupay), net banking, and wallets. Payment is processed in seconds.</div>
+        <div class="faq-a">All major options via Razorpay: UPI (GPay, PhonePe, Paytm), credit and debit cards (Visa, Mastercard, Rupay), net banking, and wallets. Payment is processed securely. We never see your card details.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)"><span>Can I get a refund?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Because each report is individually crafted, we do not offer refunds after delivery. If you experience a technical issue, contact us on WhatsApp and we'll make it right.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)"><span>Can I use my own API key?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Yes. Enter your API key in Step 3 and your reading generates instantly on screen — no payment needed. You pay the provider directly for usage (typically ₹20–80 per full reading).</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)"><span>What's in the 23 modules?</span><span class="faq-arrow">↓</span></div>
-        <div class="faq-a">Birth Chart, Nakshatra, Dasha Timeline, Planetary Strength, Yogas, Career, Finance, Marriage, Children, Health, Karma, Relocation, Lal Kitab, Vastu, Remedies, Mantras, Numerology, Handwriting, Palm (both hands), Face Reading, Past Life, 2025–2026 Forecast, and Master Synthesis.</div>
+        <div class="faq-a">Because each report is individually generated from your data, we do not offer refunds after delivery. If you experience a technical failure, write to support@jyotishai.in within 48 hours and we will regenerate your report at no charge.</div>
       </div>
     </div>
   </div>
