@@ -1234,247 +1234,118 @@ function exportReading() {
   a.click();
 }
 
-// ── Auth Modal ──
-let _pendingAuthPlan = null;
+// ── Razorpay Payment ──
+const RAZORPAY_KEY = 'rzp_live_PASTE_YOUR_KEY_HERE'; // Replace with your Razorpay key
 
-function openAuthModal(plan) {
-  _pendingAuthPlan = plan || null;
-  const label = document.getElementById('auth-plan-label');
-  if (label) {
-    label.textContent = plan === 'seeker' ? 'Sign in to start your ₹299 reading'
-      : plan === 'blueprint' ? 'Sign in to activate Blueprint plan'
-      : 'Sign in to your account';
-  }
-  document.getElementById('auth-overlay').classList.add('open');
-  document.getElementById('auth-otp-step1').style.display = '';
-  document.getElementById('auth-otp-step2').style.display = 'none';
-}
-
-function closeAuthModal(e) {
-  if (e && e.target !== document.getElementById('auth-overlay')) return;
-  document.getElementById('auth-overlay').classList.remove('open');
-}
-
-// ── Supabase Auth (real implementation) ──
-// These values are safe to expose in frontend — they are public anon keys
-const SUPABASE_URL = 'https://okarzkemcidhahgzhzle.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_5kfbUs0tDyypIMREu-ZwRQ_5ceI_TLq';
-
-const SITE_URL = 'https://jyotish-ai.netlify.app';
-
-function getSupabase() {
-  if (window._supabaseClient) return window._supabaseClient;
-  if (!window.supabase) { showAuthError('Supabase SDK not loaded. Check your internet connection.'); return null; }
-  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      redirectTo: SITE_URL,
-    }
-  });
-  return window._supabaseClient;
-}
-
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  if (el) { el.textContent = msg; el.style.display = 'block'; }
-}
-
-function clearAuthError() {
-  const el = document.getElementById('auth-error');
-  if (el) { el.textContent = ''; el.style.display = 'none'; }
-}
-
-function setAuthLoading(btn, loading) {
-  if (!btn) return;
-  btn.disabled = loading;
-  btn.dataset.orig = btn.dataset.orig || btn.innerHTML;
-  btn.innerHTML = loading ? '<span class="auth-spinner">⟳</span> Please wait...' : btn.dataset.orig;
-}
-
-async function authWithGoogle() {
-  clearAuthError();
-  const sb = getSupabase();
-  if (!sb) return;
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: SITE_URL }
-  });
-  if (error) showAuthError(error.message);
-}
-
-async function authWithApple() {
-  clearAuthError();
-  const sb = getSupabase();
-  if (!sb) return;
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'apple',
-    options: { redirectTo: SITE_URL }
-  });
-  if (error) showAuthError(error.message);
-}
-
-async function sendOTP() {
-  clearAuthError();
-  const phone = document.getElementById('auth-phone').value.trim();
-  if (!/^\d{10}$/.test(phone)) {
-    showAuthError('Enter a valid 10-digit Indian mobile number.');
-    return;
-  }
-  const btn = document.querySelector('#auth-otp-step1 .auth-btn-otp');
-  setAuthLoading(btn, true);
-
-  const sb = getSupabase();
-  if (!sb) { setAuthLoading(btn, false); return; }
-
-  const { error } = await sb.auth.signInWithOtp({
-    phone: '+91' + phone,
-  });
-
-  setAuthLoading(btn, false);
-
-  if (error) {
-    showAuthError(error.message);
-    return;
-  }
-
-  document.getElementById('auth-phone-display').textContent = phone;
-  document.getElementById('auth-otp-step1').style.display = 'none';
-  document.getElementById('auth-otp-step2').style.display = '';
-}
-
-async function verifyOTP() {
-  clearAuthError();
-  const otp = document.getElementById('auth-otp').value.trim();
-  const phone = document.getElementById('auth-phone').value.trim();
-
-  if (!/^\d{6}$/.test(otp)) {
-    showAuthError('Enter the 6-digit OTP sent to your phone.');
-    return;
-  }
-
-  const btn = document.querySelector('#auth-otp-step2 .auth-btn-otp');
-  setAuthLoading(btn, true);
-
-  const sb = getSupabase();
-  if (!sb) { setAuthLoading(btn, false); return; }
-
-  const { data, error } = await sb.auth.verifyOtp({
-    phone: '+91' + phone,
-    token: otp,
-    type: 'sms',
-  });
-
-  setAuthLoading(btn, false);
-
-  if (error) {
-    showAuthError('Invalid OTP. Please try again.');
-    return;
-  }
-
-  // Success
-  onAuthSuccess(data.user);
-}
-
-function resetOTP() {
-  clearAuthError();
-  document.getElementById('auth-otp-step1').style.display = '';
-  document.getElementById('auth-otp-step2').style.display = 'none';
-  document.getElementById('auth-otp').value = '';
-}
-
-function onAuthSuccess(user) {
-  closeAuthModal();
-  const signinBtn = document.querySelector('.nav-signin');
-  if (signinBtn && user) {
-    const display = user.phone
-      ? user.phone.replace('+91', '')
-      : (user.email || 'Account');
-    signinBtn.textContent = '☽ ' + display;
-    signinBtn.onclick = (e) => { e.stopPropagation(); toggleUserMenu(display); };
-  }
-  if (_pendingAuthPlan) {
-    scrollToForm();
-    _pendingAuthPlan = null;
+function handleGenerateClick() {
+  const apiKey = document.getElementById('f-apikey').value.trim();
+  if (apiKey) {
+    // User has own key — generate free
+    generateReading();
+  } else {
+    // No key — show payment modal
+    openPaymentModal();
   }
 }
 
-function toggleUserMenu(display) {
-  // Remove existing menu if open
-  const existing = document.getElementById('user-menu');
-  if (existing) { existing.remove(); return; }
-
-  const signinBtn = document.querySelector('.nav-signin');
-  const menu = document.createElement('div');
-  menu.id = 'user-menu';
-  menu.innerHTML = `
-    <div class="user-menu-email">${display}</div>
-    <div class="user-menu-divider"></div>
-    <button class="user-menu-item" onclick="scrollToForm(); document.getElementById('user-menu')?.remove();">
-      ✦ New Reading
-    </button>
-    <button class="user-menu-item user-menu-signout" onclick="signOut()">
-      Sign Out
-    </button>
-  `;
-  document.body.appendChild(menu);
-
-  // Position below the nav button
-  const rect = signinBtn.getBoundingClientRect();
-  menu.style.top = (rect.bottom + 8) + 'px';
-  menu.style.right = (window.innerWidth - rect.right) + 'px';
-
-  // Close on outside click
-  setTimeout(() => {
-    document.addEventListener('click', function closeMenu() {
-      document.getElementById('user-menu')?.remove();
-      document.removeEventListener('click', closeMenu);
+// Show/hide free key button based on API key input
+document.addEventListener('DOMContentLoaded', () => {
+  const apiKeyInput = document.getElementById('f-apikey');
+  if (apiKeyInput) {
+    apiKeyInput.addEventListener('input', () => {
+      const freeBtn = document.getElementById('free-key-btn');
+      const mainBtn = document.getElementById('run-btn');
+      if (apiKeyInput.value.trim().length > 10) {
+        freeBtn.style.display = 'block';
+        mainBtn.querySelector('#btn-text').textContent = 'Use My Key (Free)';
+        mainBtn.onclick = generateReading;
+      } else {
+        freeBtn.style.display = 'none';
+        mainBtn.querySelector('#btn-text').textContent = 'Get My Reading';
+        mainBtn.onclick = handleGenerateClick;
+      }
     });
-  }, 0);
-}
-
-async function signOut() {
-  document.getElementById('user-menu')?.remove();
-  const sb = getSupabase();
-  if (sb) await sb.auth.signOut();
-  const signinBtn = document.querySelector('.nav-signin');
-  if (signinBtn) {
-    signinBtn.textContent = 'Sign In';
-    signinBtn.onclick = () => openAuthModal();
   }
-}
+});
 
-// Check session on load + handle OAuth redirect
-async function checkExistingSession() {
-  const sb = getSupabase();
-  if (!sb) return;
-
-  // Handle OAuth redirect — Supabase puts tokens in the URL hash
-  const { data: { session }, error } = await sb.auth.getSession();
-
-  if (session?.user) {
-    onAuthSuccess(session.user);
-    // Clean the URL hash so it doesn't show tokens
-    if (window.location.hash.includes('access_token')) {
-      history.replaceState(null, '', window.location.pathname);
-    }
+function openPaymentModal() {
+  // Validate required fields first
+  const name = document.getElementById('f-name').value.trim();
+  const dob  = document.getElementById('f-dob').value.trim();
+  const tob  = document.getElementById('f-tob').value.trim();
+  const pob  = document.getElementById('f-pob').value.trim();
+  if (!name || !dob || !tob || !pob) {
+    alert('Please fill in your Name, Date of Birth, Time of Birth, and Place of Birth before proceeding.');
+    document.getElementById('f-name').focus();
     return;
   }
+  if (selected.size === 0) {
+    alert('Please select at least one module.');
+    return;
+  }
+  document.getElementById('payment-overlay').classList.add('open');
+}
 
-  // Listen for auth state changes (fires after OAuth redirect completes)
-  sb.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      onAuthSuccess(session.user);
-      if (window.location.hash.includes('access_token')) {
-        history.replaceState(null, '', window.location.pathname);
-      }
+function closePaymentModal(e) {
+  if (e && e.target !== document.getElementById('payment-overlay')) return;
+  document.getElementById('payment-overlay').classList.remove('open');
+}
+
+function initiateRazorpay() {
+  const email = document.getElementById('payment-email').value.trim();
+  const name  = document.getElementById('f-name').value.trim();
+
+  const options = {
+    key: RAZORPAY_KEY,
+    amount: 99900, // ₹999 in paise
+    currency: 'INR',
+    name: 'Jyotish AI',
+    description: 'Vedic Master Reading — 23 Modules',
+    image: 'https://jyotish-ai.netlify.app/logo.png',
+    prefill: {
+      name: name,
+      email: email || '',
+    },
+    theme: { color: '#c4a97d' },
+    modal: {
+      ondismiss: () => console.log('Payment modal closed')
+    },
+    handler: function(response) {
+      // Payment successful
+      closePaymentModal();
+      document.getElementById('payment-overlay').classList.remove('open');
+      onPaymentSuccess(response);
     }
-    if (event === 'SIGNED_OUT') {
-      const signinBtn = document.querySelector('.nav-signin');
-      if (signinBtn) {
-        signinBtn.textContent = 'Sign In';
-        signinBtn.onclick = () => openAuthModal();
-      }
-    }
-  });
+  };
+
+  try {
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function(response) {
+      alert('Payment failed: ' + response.error.description + '. Please try again.');
+    });
+    rzp.open();
+  } catch(err) {
+    alert('Razorpay not loaded. Please check your internet connection and try again.');
+    console.error('Razorpay error:', err);
+  }
+}
+
+function onPaymentSuccess(response) {
+  // Payment confirmed — generate the reading
+  console.log('Payment ID:', response.razorpay_payment_id);
+  // Store payment ID for reference
+  window._paymentId = response.razorpay_payment_id;
+  // Now generate reading using our backend API key
+  generateReading(true); // true = use backend key
+}
+
+// ── FAQ Toggle ──
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
 }
 
 // Init
@@ -1482,5 +1353,4 @@ document.addEventListener('DOMContentLoaded', () => {
   generateStars();
   renderModuleOverview();
   renderChips();
-  checkExistingSession();
 });
