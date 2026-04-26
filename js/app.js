@@ -181,52 +181,111 @@ function gv(id) {
 
 // ── Prompt Builder ──
 function buildPrompt(subject, modIds) {
-  const modList = modIds
-    .map(id => {
-      const m = MODULES.find(x => x.id === id);
-      return m ? `Module ${id}: ${m.name}` : null;
-    })
-    .filter(Boolean)
-    .join('\n');
-
   const partnerLine = subject.partner
-    ? `Partner Name + DOB: ${subject.partner}`
-    : 'No partner data provided. Running Tier 1 only for Module 7.';
+    ? `Partner Name: ${subject.partner}${subject.pdob ? ', DOB: ' + subject.pdob : ''}${subject.ppob ? ', Place of Birth: ' + subject.ppob : ''}${subject.ptob ? ', Time: ' + subject.ptob : ''}`
+    : 'No partner data provided.';
 
-  return `You are delivering a complete Vedic master reading. This is not a generic horoscope. Every sentence must reference a specific planet, house, nakshatra, yoga, or dasha period. No vague reassurances. No padding. No em dashes.
+  const hasQuestion = subject.question && subject.question.trim().length > 0;
+  const hasHandwriting = !!uploadedImages.handwriting;
+  const hasPalm = !!(uploadedImages.palmLeft || uploadedImages.palmRight || uploadedImages.palm);
+  const hasFace = !!uploadedImages.face;
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
-SUBJECT DATA:
+  return `You are writing a complete personalised Vedic life reading for the person whose details are below. This is a single, continuous document -- not a list of separate modules. It reads like a story written specifically for this human being.
+
+PERSON'S DATA:
 Full Name: ${subject.name}
+Phone: ${subject.phone || 'Not provided'}
 Date of Birth: ${subject.dob}
-Exact Time of Birth: ${subject.tob}
+Time of Birth: ${subject.tob}
 Place of Birth: ${subject.pob}
 Current City: ${subject.city}
-Career/Industry: ${subject.career}
-Current Mental and Physical State: ${subject.state}
+Career / Industry: ${subject.career}
+${hasQuestion ? 'Most Pressing Question: ' + subject.question : ''}
 ${partnerLine}
-${subject.reloc ? 'Relocation Target: ' + subject.reloc : ''}
-${subject.question ? 'PRIMARY QUESTION (answer this above everything else): ' + subject.question : ''}
-Today: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+Report Date: ${today}
 
-MODULES TO DELIVER:
-${modList}
+${hasHandwriting ? 'Handwriting sample image is attached. Analyse it in Chapter 2.' : ''}
+${hasPalm ? 'Palm image(s) are attached. Analyse them in Chapter 2.' : ''}
+${hasFace ? 'Face photo is attached. Analyse it in Chapter 2.' : ''}
 
-WRITING RULES (follow these exactly):
-1. Calculate the Vedic birth chart from the data provided. State all 9 planetary positions with sign, house, and nakshatra. Do this first in Module 1.
-2. Use ## for section headings and ### for sub-headings. Use numbered lists for sequential insights. Use bullet points for supporting evidence only.
-3. Every prediction must cite its planetary basis. "Your career shifts in Q3 2026 because Saturn transits your 10th house lord in Revati nakshatra" not "career changes are coming."
-4. Timing must be specific. Name the year and quarter. Name the Mahadasha and Antardasha running at that time.
-5. Each module ends with exactly one "Bottom line:" paragraph. One definitive, time-bound sentence. No hedging.
-6. No em dashes anywhere. Use commas or full stops.
-7. Do not say: "it's important to note", "it's worth mentioning", "as an AI", "I should point out", "fascinating", "delve", "navigate", "tapestry", "in conclusion", or any similar filler.
-8. Write in short sentences. 15 words max per sentence wherever possible.
-9. For image modules: describe what you physically observe first, then interpret. Be specific about line characteristics, letter formations, or facial features.
-10. Module 23 must synthesise findings into exactly 10 numbered insights and one specific action to take before the end of this week.
-${modIds.includes(19) ? '11. Module 19 (Handwriting): name the baseline type, pressure level, zone dominance, and slant direction. Then interpret each.' : ''}
-${modIds.includes(20) ? '12. Module 20 (Palm): analyse left and right hands separately if both provided. Name each major line and describe its length, depth, breaks, and branches before interpreting.' : ''}
-${modIds.includes(21) ? '13. Module 21 (Face): describe the face shape, then analyse forehead lines, eye spacing, nose bridge, lip fullness, and jaw structure individually before interpreting.' : ''}
+DELIVER EXACTLY THESE 10 CHAPTERS IN ORDER:
 
-Deliver the reading now, module by module, in the order listed above.`;
+## Chapter 1: Your Foundation
+Calculate the complete Vedic birth chart from the data above.
+State the Ascendant, all 9 planetary positions (planet, sign, house, nakshatra), current Mahadasha and Antardasha with dates, and the top 3 yogas present.
+Present the planetary table once, cleanly. Do not repeat it in any other chapter.
+Then write 2 paragraphs describing what this chart means for this person's life trajectory overall.
+End with: Bottom line: [one sentence about the defining pattern of this chart].
+
+## Chapter 2: Who You Are
+${hasHandwriting ? 'Analyse the handwriting: observe baseline, pressure, zone dominance, and slant direction. Then interpret each observation in terms of this person\'s personality.' : ''}
+${hasPalm ? 'Analyse the palm: describe the Heart Line, Head Line, Life Line, and Fate Line length, depth, breaks, and branches. Then interpret each.' : ''}
+${hasFace ? 'Analyse the face: describe forehead, eye spacing, nose, lips, and jaw individually. Then interpret each physiognomically.' : ''}
+Synthesise all observations (handwriting, palm, face, and birth chart) into one coherent portrait of this person. Who are they beneath the professional surface? What do they protect? What do they give easily and what do they withhold?
+End with: Bottom line: [one sentence summing up their core psychological pattern].
+
+${hasQuestion ? `## Chapter 3: Your Answer
+The person asked: "${subject.question}"
+Answer this question directly in the first sentence. Then provide the full planetary reasoning: which house governs this area, who rules it, where that ruler sits, what dasha and antardasha governs the timing, and what transits activate or delay the result.
+Give a specific timeframe: name the year and quarter.
+Do not hedge. Do not say "it depends." Give the most accurate answer the chart supports.
+End with: Bottom line: [the answer in one definitive sentence with a date].` : ''}
+
+## Chapter ${hasQuestion ? '4' : '3'}: Career and Money
+What is this person's natural professional signature from the chart? What does the 10th house say about where their career is heading? What does the 2nd and 11th house say about their income pattern?
+Name the specific periods when income peaks and when it stalls. Reference the running dasha.
+What is the one career move their chart is pointing toward that they have not made yet?
+End with: Bottom line: [specific career prediction with quarter and year].
+
+## Chapter ${hasQuestion ? '5' : '4'}: Love and Relationships
+Analyse the 7th house, its lord, Venus as karaka, and the Navamsha for marriage quality.
+What is the nature of this person's future partner based on the chart?
+What patterns have delayed or complicated their relationships so far?
+${subject.partner ? 'Partner compatibility data has been provided. Run a basic Guna analysis and Dasha overlay.' : ''}
+When does marriage or a committed relationship formalise? Name the dasha, antardasha, and year.
+End with: Bottom line: [marriage or relationship timing in one sentence].
+
+## Chapter ${hasQuestion ? '6' : '5'}: Health and Body
+Which organ systems are under stress based on the chart placements?
+What does the Ascendant lord's condition say about the physical constitution?
+What are the two or three most important health actions to take in the next 12 months?
+Name the dasha periods in the next 5 years that require the most physical attention.
+End with: Bottom line: [the one health action that must happen before a specific date].
+
+## Chapter ${hasQuestion ? '7' : '6'}: Karma and Past Life
+What does Ketu describe about the soul's past life experience?
+What specific karmic debt is most active right now?
+What is Rahu asking this person to move toward in this lifetime?
+What is the one repeating pattern in their life that will not stop until they consciously interrupt it?
+End with: Bottom line: [the karmic demand in one direct sentence].
+
+## Chapter ${hasQuestion ? '8' : '7'}: Your Next 3 Years
+Write a quarter-by-quarter forecast from today through end of ${new Date().getFullYear() + 3}.
+For each quarter, name: the dasha period running, the dominant theme, and one specific recommended action.
+Be concrete. Name months. Name transits. Name planets moving into specific houses.
+End with: Bottom line: [the single most important window in the next 3 years and why].
+
+## Chapter ${hasQuestion ? '9' : '8'}: Remedies
+Prescribe gemstones based on functional benefics for this Ascendant. For each gemstone: stone name, weight, metal, finger, day to wear, and mantra.
+Prescribe 3 behavioral remedies tied to specific planetary problems in this chart. Not generic. Each remedy must name the planet it addresses and why.
+Prescribe one mantra for the most pressing issue in this chart.
+End with: Bottom line: [the one remedy to begin before a specific date].
+
+## Chapter ${hasQuestion ? '10' : '9'}: Power Moves
+Write exactly 10 numbered insights about this person's life as it stands right now. Each insight must be specific to their chart, not generic. Each must name a planet, house, or dasha.
+Then write one non-negotiable action to take before the end of this week. Make it specific, behavioural, and tied to the chart.
+End with: Bottom line: [the defining action sentence].
+
+FINAL RULES:
+- No em dashes anywhere in the document. Use commas or full stops instead.
+- No filler phrases: "it is worth noting", "it is important to understand", "delve", "navigate", "tapestry", "in conclusion", "fascinating".
+- Address the person as "you" throughout.
+- The document must read as one story about this specific human, not as a generic astrology report with their name inserted.
+- Every chapter should reference details from previous chapters, creating continuity.
+- The tone is warm, direct, and occasionally confronting. Never apologetic. Never vague.
+
+Begin now with Chapter 1.`;
 }
 
 // ── Build Messages Array (with optional images) ──
@@ -466,7 +525,23 @@ function updateProgressText(msg) {
 
 // ── API Providers ──
 
-const SYSTEM_PROMPT = `You are a senior Vedic astrologer, palmist, and behavioral analyst with 25 years of practice. You write the way an elite human mentor speaks: direct, precise, occasionally blunt. You cite specific planetary positions, house numbers, and nakshatra names in every claim. You never pad. You never use em dashes. You do not say "it's important to note", "it is worth mentioning", "in conclusion", "as we can see", "fascinating", or any phrase that signals AI-generated text. You write in short, punchy sentences. Each paragraph earns its place. When you analyse a palm or handwriting, you describe what you see physically first, then interpret it. When you give timing predictions, you give year and quarter, not vague windows. You end every module with a single "Bottom line:" sentence that is non-negotiable and time-specific. Sound like a human who has read 10,000 charts.`;
+const SYSTEM_PROMPT = `You are a senior Vedic astrologer, graphologist, and palmist with 30 years of practice. You write the way a brilliant mentor speaks to someone who came to you for real answers: direct, warm, occasionally confronting, always personal. You never sound like a textbook. You never sound like software.
+
+ABSOLUTE WRITING RULES -- these apply to every word you write:
+1. No em dashes anywhere. Use a comma, a full stop, or a new sentence instead.
+2. No AI filler phrases: "it is worth noting", "it is important to understand", "delve into", "navigate", "tapestry", "fascinating", "in conclusion", "as we can see", "it is interesting that".
+3. Every claim cites a specific planet, house, nakshatra, or dasha period. Vague statements are prohibited.
+4. Write in the second person. Address the person as "you" throughout.
+5. Short sentences. 15 words maximum per sentence where possible.
+6. Each chapter ends with exactly one "Bottom line:" paragraph. One sentence. Time-specific. Non-negotiable.
+7. Timing predictions name the year and quarter. Not "soon" or "in the coming years."
+8. For handwriting analysis: describe what you physically observe first (baseline, pressure, zones, slant), then interpret.
+9. For palm analysis: describe each major line's length, depth, and breaks before interpreting.
+10. For face analysis: describe each feature (forehead, eyes, nose, lips, jaw) before interpreting.
+11. The tone is that of a 30-year practitioner who has seen 10,000 charts. Confident. Occasionally blunt. Never generic.
+12. The report reads as one continuous story about this specific person, not as 10 separate essays.
+13. Do not repeat the birth chart planetary table in more than one chapter. State it once in Chapter 1 and reference it by name thereafter.
+14. Do not repeat the marriage answer or any other answer across multiple chapters. Answer once, completely, in the designated chapter.`;
 
 const PROVIDERS = {
   claude:     { models: ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001'] },

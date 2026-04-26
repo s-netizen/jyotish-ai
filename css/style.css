@@ -579,8 +579,7 @@ em { font-style: italic; color: var(--gold); }
 }
 .chapters-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-  grid-template-rows: auto auto;
+  grid-template-columns: repeat(5, 1fr);
   gap: 1px;
   background: var(--rule);
   border: 0.5px solid var(--rule);
@@ -588,11 +587,7 @@ em { font-style: italic; color: var(--gold); }
   overflow: hidden;
   margin-bottom: 3rem;
 }
-/* Asymmetric layout: wide-narrow-narrow-wide / narrow-wide-wide-narrow */
-.chapter-card:nth-child(4n+1) { grid-column: span 1; }
-.chapter-card:nth-child(2),
-.chapter-card:nth-child(3) { grid-column: span 1; }
-@media (max-width: 900px) { .chapters-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) { .chapters-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .chapters-grid { grid-template-columns: 1fr; } }
 
 .chapter-card {
@@ -1736,3 +1731,13 @@ em { font-style: italic; color: var(--gold); }
 @supports (-webkit-touch-callout: none) {
   input, textarea, select { font-size: 16px !important; }
 }
+
+/* Footer email link */
+.footer-email {
+  font-size: 13px;
+  color: var(--gold);
+  font-family: 'DM Mono', monospace;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-email:hover { color: var(--gold-lt); }
