@@ -315,6 +315,11 @@
         </div>
       </div>
       <div class="form-grid">
+        <div class="field full">
+          <label for="f-email">EMAIL ADDRESS <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="your@email.com — your report will be sent here" />
+          <p class="field-hint">Your PDF report will be delivered to this inbox within 4–5 hours of payment.</p>
+        </div>
         <div class="field">
           <label for="f-name">FULL NAME <span class="req">*</span></label>
           <input type="text" id="f-name" placeholder="As used in daily life" />
@@ -484,23 +489,6 @@
       </div>
     </div>
 
-    <!-- STEP 4: API KEY (LAST) -->
-    <div class="form-card">
-      <div class="form-card-header">
-        <span class="step-num">04</span>
-        <div>
-          <h3>Your API Key</h3>
-          <p>Have your own key? Use it free. Otherwise skip and pay ₹999.</p>
-        </div>
-      </div>
-      <div class="provider-tabs" id="provider-tabs"></div>
-      <div class="field" style="margin-top:1rem">
-        <label for="f-apikey">API KEY <span class="api-key-hint">(OPTIONAL — SKIP TO PAY ₹999)</span></label>
-        <input type="password" id="f-apikey" placeholder="Paste your API key here" autocomplete="off" />
-        <p class="api-key-note">Your key is used only in your browser. Never stored anywhere.</p>
-      </div>
-    </div>
-
     <!-- GENERATE -->
     <div class="generate-section">
       <div class="generate-price-row">
@@ -651,10 +639,6 @@
     <div class="payment-summary">
       <div class="payment-row"><span>Vedic Life Reading</span><span>₹999</span></div>
       <div class="payment-row payment-row-total"><span>Total</span><span>₹999</span></div>
-    </div>
-    <div class="field" style="margin-bottom:1rem">
-      <label>EMAIL (to receive your PDF)</label>
-      <input type="email" id="payment-email" placeholder="your@email.com" />
     </div>
     <button class="btn-razorpay" onclick="initiateRazorpay()">
       <span>Pay ₹999 with Razorpay</span>

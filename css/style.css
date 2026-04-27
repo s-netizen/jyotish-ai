@@ -953,6 +953,13 @@ em { font-style: italic; color: var(--gold); }
   color: rgba(196,165,90,0.3);
   margin-top: 8px;
 }
+.field-hint {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,165,90,0.45);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
 
 /* Upload grid */
 .upload-grid {
@@ -1080,6 +1087,62 @@ em { font-style: italic; color: var(--gold); }
   font-size: 13px;
   font-family: 'DM Mono', monospace;
   color: rgba(196,165,90,0.3);
+}
+
+/* Post-payment confirmation screen */
+.post-payment {
+  text-align: center;
+  padding: 6rem 2rem;
+}
+.pp-icon {
+  font-size: 48px;
+  color: var(--gold);
+  margin-bottom: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+.pp-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+.pp-title em { color: var(--gold); font-style: italic; }
+.pp-sub {
+  font-size: 15px;
+  color: var(--cream-dim);
+  max-width: 480px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.pp-email-box {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(196,165,90,0.07);
+  border: 0.5px solid var(--rule);
+  border-radius: 6px;
+  padding: 20px 32px;
+  margin-bottom: 1.5rem;
+}
+.pp-email-label {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+.pp-email {
+  font-size: 16px;
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+}
+.pp-time {
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(196,165,90,0.35);
+  letter-spacing: 0.05em;
 }
 
 /* Results */

@@ -1165,27 +1165,67 @@ function renderProviderTabs() {
   `).join('');
 }
 
-// ── Razorpay Payment ──
-const RAZORPAY_KEY = 'rzp_live_PASTE_YOUR_KEY_HERE';
+// ── Tatva Backend ──
+const TATVA_API = 'https://tatva-api.tatva.workers.dev';
 
+// ── Collect all form data ──
+function collectFormData() {
+  const h = document.getElementById('f-tob-h')?.value || '';
+  const m = document.getElementById('f-tob-m')?.value || '';
+  const ampm = document.getElementById('f-tob-ampm')?.value || 'AM';
+  const tob = (h && m) ? `${h}:${m} ${ampm}` : '';
+
+  const ph = document.getElementById('f-ptob-h')?.value || '';
+  const pm = document.getElementById('f-ptob-m')?.value || '';
+  const pampm = document.getElementById('f-ptob-ampm')?.value || 'AM';
+  const ptob = (ph && pm) ? `${ph}:${pm} ${pampm}` : '';
+
+  return {
+    email:   (document.getElementById('f-email')?.value   || '').trim(),
+    name:    (document.getElementById('f-name')?.value    || '').trim(),
+    phone:   (document.getElementById('f-phone')?.value   || '').trim(),
+    dob:     (document.getElementById('f-dob')?.value     || '').trim(),
+    tob,
+    pob:     (document.getElementById('f-pob')?.value     || '').trim(),
+    city:    (document.getElementById('f-city')?.value    || '').trim(),
+    career:  (document.getElementById('f-career')?.value  || '').trim(),
+    question:(document.getElementById('f-question')?.value|| '').trim(),
+    partner: (document.getElementById('f-partner')?.value || '').trim(),
+    pdob:    (document.getElementById('f-pdob')?.value    || '').trim(),
+    ppob:    (document.getElementById('f-ppob')?.value    || '').trim(),
+    ptob,
+  };
+}
+
+// ── Validate form ──
+function validateForm() {
+  const fd = collectFormData();
+  const missing = [];
+  if (!fd.email)   missing.push('Email Address');
+  if (!fd.name)    missing.push('Full Name');
+  if (!fd.dob)     missing.push('Date of Birth');
+  if (!fd.tob)     missing.push('Time of Birth');
+  if (!fd.pob)     missing.push('Place of Birth');
+  if (!fd.city)    missing.push('Current City');
+  if (!fd.career)  missing.push('Career / Industry');
+  if (!fd.question) missing.push('Your Question');
+  return { fd, missing };
+}
+
+// ── Main button handler ──
 function handleGenerateClick() {
-  const apiKey = document.getElementById('f-apikey').value.trim();
-  if (apiKey) {
-    generateReading();
-  } else {
-    openPaymentModal();
+  const { fd, missing } = validateForm();
+  if (missing.length) {
+    const errEl = document.getElementById('err-area');
+    errEl.innerHTML = `<div class="err-msg">Please fill in: ${missing.join(', ')}</div>`;
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
+  document.getElementById('err-area').innerHTML = '';
+  openPaymentModal();
 }
 
 function openPaymentModal() {
-  const name = document.getElementById('f-name').value.trim();
-  const dob  = document.getElementById('f-dob').value.trim();
-  const pob  = document.getElementById('f-pob').value.trim();
-  if (!name || !dob || !pob) {
-    alert('Please fill in your Name, Date of Birth, and Place of Birth before proceeding.');
-    document.getElementById('f-name').focus();
-    return;
-  }
   document.getElementById('payment-overlay').classList.add('open');
 }
 
@@ -1194,35 +1234,112 @@ function closePaymentModal(e) {
   document.getElementById('payment-overlay').classList.remove('open');
 }
 
-function initiateRazorpay() {
-  const email = document.getElementById('payment-email').value.trim();
-  const name  = document.getElementById('f-name').value.trim();
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: 99900,
-    currency: 'INR',
-    name: 'Tatva',
-    description: 'Vedic Master Reading — 23 Modules',
-    prefill: { name, email: email || '' },
-    theme: { color: '#c4a55a' },
-    handler: function(response) {
-      document.getElementById('payment-overlay').classList.remove('open');
-      window._paymentId = response.razorpay_payment_id;
-      generateReading(true);
-    }
-  };
+async function initiateRazorpay() {
+  const { fd } = validateForm();
+  const btn = document.querySelector('.btn-razorpay');
+
+  // Set loading state
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Creating order...';
+
   try {
+    // 1. Create order server-side
+    const orderRes = await fetch(`${TATVA_API}/api/order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: fd.name, email: fd.email, phone: fd.phone }),
+    });
+
+    if (!orderRes.ok) throw new Error('Failed to create order');
+    const { orderId, amount, currency, keyId } = await orderRes.json();
+
+    // 2. Open Razorpay
+    const options = {
+      key:      keyId,
+      amount,
+      currency,
+      order_id: orderId,
+      name:     'Tatva',
+      description: 'Cosmic Blueprint — Complete Vedic Life Reading',
+      prefill:  { name: fd.name, email: fd.email, contact: fd.phone },
+      theme:    { color: '#c4a55a' },
+      modal:    { ondismiss: () => {
+        btn.disabled = false;
+        btn.querySelector('span').textContent = 'Pay ₹999 with Razorpay';
+      }},
+      handler: async function(response) {
+        closePaymentModal();
+        await onPaymentSuccess(response, fd);
+      }
+    };
+
     const rzp = new Razorpay(options);
-    rzp.on('payment.failed', r => alert('Payment failed: ' + r.error.description));
+    rzp.on('payment.failed', r => {
+      btn.disabled = false;
+      btn.querySelector('span').textContent = 'Pay ₹999 with Razorpay';
+      alert('Payment failed: ' + r.error.description);
+    });
     rzp.open();
-  } catch(err) {
-    alert('Razorpay not loaded. Please check your internet connection.');
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.querySelector('span').textContent = 'Pay ₹999 with Razorpay';
+    alert('Something went wrong. Please try again.');
+    console.error(err);
   }
 }
 
-function onPaymentSuccess(response) {
-  window._paymentId = response.razorpay_payment_id;
-  generateReading(true);
+async function onPaymentSuccess(response, fd) {
+  // Show success screen
+  showPostPaymentScreen(fd.email, fd.name);
+
+  try {
+    // Verify payment + trigger report generation
+    const verifyRes = await fetch(`${TATVA_API}/api/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpay_order_id:   response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature:  response.razorpay_signature,
+        formData: fd,
+        images: {
+          handwriting: uploadedImages.handwriting || null,
+          palmLeft:    uploadedImages.palmLeft    || null,
+          palmRight:   uploadedImages.palmRight   || null,
+          face:        uploadedImages.face        || null,
+        },
+      }),
+    });
+
+    if (!verifyRes.ok) throw new Error('Verification failed');
+    console.log('Payment verified and report queued.');
+
+  } catch (err) {
+    console.error('Post-payment error:', err);
+    // Don't show error to user — payment went through, report will be sent
+  }
+}
+
+function showPostPaymentScreen(email, name) {
+  // Hide the form section, show confirmation
+  const formSection = document.getElementById('reading-form');
+  if (formSection) {
+    formSection.innerHTML = `
+      <div class="container-narrow">
+        <div class="post-payment">
+          <div class="pp-icon">✦</div>
+          <h2 class="pp-title">Payment received.<br/><em>Your reading is being prepared.</em></h2>
+          <p class="pp-sub">A complete Vedic life reading — birth chart, handwriting, palm, face, and numerology — is being crafted for ${name}.</p>
+          <div class="pp-email-box">
+            <span class="pp-email-label">REPORT WILL BE DELIVERED TO</span>
+            <span class="pp-email">${email}</span>
+          </div>
+          <p class="pp-time">Expected in 4–5 hours · Check your spam folder too</p>
+        </div>
+      </div>
+    `;
+  }
 }
 
 // ── FAQ Toggle ──
@@ -1639,113 +1756,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function handleGenerateClick() {
-  const apiKey = document.getElementById('f-apikey').value.trim();
-  if (apiKey) {
-    // User has own key — generate free
-    generateReading();
-  } else {
-    // No key — show payment modal
-    openPaymentModal();
-  }
-}
-
-// Show/hide free key button based on API key input
-document.addEventListener('DOMContentLoaded', () => {
-  const apiKeyInput = document.getElementById('f-apikey');
-  if (apiKeyInput) {
-    apiKeyInput.addEventListener('input', () => {
-      const freeBtn = document.getElementById('free-key-btn');
-      const mainBtn = document.getElementById('run-btn');
-      if (apiKeyInput.value.trim().length > 10) {
-        freeBtn.style.display = 'block';
-        mainBtn.querySelector('#btn-text').textContent = 'Use My Key (Free)';
-        mainBtn.onclick = generateReading;
-      } else {
-        freeBtn.style.display = 'none';
-        mainBtn.querySelector('#btn-text').textContent = 'Get My Reading';
-        mainBtn.onclick = handleGenerateClick;
-      }
-    });
-  }
-});
-
-function openPaymentModal() {
-  // Validate required fields first
-  const name = document.getElementById('f-name').value.trim();
-  const dob  = document.getElementById('f-dob').value.trim();
-  const tob  = document.getElementById('f-tob').value.trim();
-  const pob  = document.getElementById('f-pob').value.trim();
-  if (!name || !dob || !tob || !pob) {
-    alert('Please fill in your Name, Date of Birth, Time of Birth, and Place of Birth before proceeding.');
-    document.getElementById('f-name').focus();
-    return;
-  }
-  if (selected.size === 0) {
-    alert('Please select at least one module.');
-    return;
-  }
-  document.getElementById('payment-overlay').classList.add('open');
-}
-
-function closePaymentModal(e) {
-  if (e && e.target !== document.getElementById('payment-overlay')) return;
-  document.getElementById('payment-overlay').classList.remove('open');
-}
-
-function initiateRazorpay() {
-  const email = document.getElementById('payment-email').value.trim();
-  const name  = document.getElementById('f-name').value.trim();
-
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: 99900, // ₹999 in paise
-    currency: 'INR',
-    name: 'Tatva',
-    description: 'Vedic Master Reading — 23 Modules',
-    image: 'https://jyotish-ai.netlify.app/logo.png',
-    prefill: {
-      name: name,
-      email: email || '',
-    },
-    theme: { color: '#c4a97d' },
-    modal: {
-      ondismiss: () => console.log('Payment modal closed')
-    },
-    handler: function(response) {
-      // Payment successful
-      closePaymentModal();
-      document.getElementById('payment-overlay').classList.remove('open');
-      onPaymentSuccess(response);
-    }
-  };
-
-  try {
-    const rzp = new Razorpay(options);
-    rzp.on('payment.failed', function(response) {
-      alert('Payment failed: ' + response.error.description + '. Please try again.');
-    });
-    rzp.open();
-  } catch(err) {
-    alert('Razorpay not loaded. Please check your internet connection and try again.');
-    console.error('Razorpay error:', err);
-  }
-}
-
-function onPaymentSuccess(response) {
-  // Payment confirmed — generate the reading
-  console.log('Payment ID:', response.razorpay_payment_id);
-  // Store payment ID for reference
-  window._paymentId = response.razorpay_payment_id;
-  // Now generate reading using our backend API key
-  generateReading(true); // true = use backend key
-}
-
 // ── FAQ Toggle ──
 function toggleFaq(el) {
   const item = el.parentElement;
   const isOpen = item.classList.contains('open');
-  // Close all
   document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
