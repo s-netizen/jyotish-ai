@@ -1,4 +1,4 @@
-/* ── Jyotish  -  Vedic Master Reading ── */
+/* ── Tatva  -  Vedic Master Reading ── */
 
 // ── Module Definitions ──
 const MODULES = [
@@ -209,83 +209,61 @@ ${hasHandwriting ? 'Handwriting sample image is attached. Analyse it in Chapter 
 ${hasPalm ? 'Palm image(s) are attached. Analyse them in Chapter 2.' : ''}
 ${hasFace ? 'Face photo is attached. Analyse it in Chapter 2.' : ''}
 
-DELIVER EXACTLY THESE 10 CHAPTERS IN ORDER:
+DELIVER EXACTLY THESE 10 CHAPTERS IN ORDER. Each chapter: 3 to 5 tight paragraphs maximum. No padding. No repetition. Total output must not exceed 12 pages when printed.
 
 ## Chapter 1: Your Foundation
-Calculate the complete Vedic birth chart from the data above.
-State the Ascendant, all 9 planetary positions (planet, sign, house, nakshatra), current Mahadasha and Antardasha with dates, and the top 3 yogas present.
-Present the planetary table once, cleanly. Do not repeat it in any other chapter.
-Then write 2 paragraphs describing what this chart means for this person's life trajectory overall.
-End with: Bottom line: [one sentence about the defining pattern of this chart].
+Calculate the Vedic birth chart. Present one clean table: Ascendant and all 9 planets with sign, house, nakshatra. State the current Mahadasha and Antardasha with dates. Name the top 3 yogas. Then write 2 paragraphs on what this chart means for this person's life trajectory. Reference specific placements, not generalities.
+Bottom line: the defining pattern of this chart in one sentence.
 
 ## Chapter 2: Who You Are
-${hasHandwriting ? 'Analyse the handwriting: observe baseline, pressure, zone dominance, and slant direction. Then interpret each observation in terms of this person\'s personality.' : ''}
-${hasPalm ? 'Analyse the palm: describe the Heart Line, Head Line, Life Line, and Fate Line length, depth, breaks, and branches. Then interpret each.' : ''}
-${hasFace ? 'Analyse the face: describe forehead, eye spacing, nose, lips, and jaw individually. Then interpret each physiognomically.' : ''}
-Synthesise all observations (handwriting, palm, face, and birth chart) into one coherent portrait of this person. Who are they beneath the professional surface? What do they protect? What do they give easily and what do they withhold?
-End with: Bottom line: [one sentence summing up their core psychological pattern].
+${hasHandwriting ? `Handwriting is provided. Weave 2 to 3 specific observations (pressure, baseline, slant) directly into personality insights. No separate headers for "observation" and "interpretation". One flowing portrait.` : ''}
+${hasPalm ? `Palm is provided. Weave 2 to 3 specific line observations directly into life insights. No separate headers.` : ''}
+${hasFace ? `Face photo is provided. Weave 2 to 3 specific feature observations directly into character insights. No separate headers.` : ''}
+${!hasHandwriting && !hasPalm && !hasFace ? 'No images provided. Read personality entirely from Ascendant, Moon nakshatra, and Mercury placement.' : ''}
+Synthesise into one portrait of who they are beneath the surface. What they protect. What they give freely.
+Bottom line: their core psychological pattern in one sentence.
 
 ${hasQuestion ? `## Chapter 3: Your Answer
 The person asked: "${subject.question}"
-Answer this question directly in the first sentence. Then provide the full planetary reasoning: which house governs this area, who rules it, where that ruler sits, what dasha and antardasha governs the timing, and what transits activate or delay the result.
-Give a specific timeframe: name the year and quarter.
-Do not hedge. Do not say "it depends." Give the most accurate answer the chart supports.
-End with: Bottom line: [the answer in one definitive sentence with a date].` : ''}
+Answer directly in the first sentence. Then give the planetary reasoning in 2 to 3 paragraphs: which house governs this, who rules it, where that ruler sits, which dasha and antardasha governs the timing, which specific transit activates it. Give a specific quarter and year. No hedging.
+Bottom line: the answer with an exact quarter and year.` : ''}
 
 ## Chapter ${hasQuestion ? '4' : '3'}: Career and Money
-What is this person's natural professional signature from the chart? What does the 10th house say about where their career is heading? What does the 2nd and 11th house say about their income pattern?
-Name the specific periods when income peaks and when it stalls. Reference the running dasha.
-What is the one career move their chart is pointing toward that they have not made yet?
-End with: Bottom line: [specific career prediction with quarter and year].
+10th house sign and lord. 2nd and 11th house income pattern. Which specific dasha periods bring peak income and which stall it. The one career move this chart demands they have not made yet. 3 to 4 paragraphs maximum.
+Bottom line: specific career prediction with quarter and year.
 
 ## Chapter ${hasQuestion ? '5' : '4'}: Love and Relationships
-Analyse the 7th house, its lord, Venus as karaka, and the Navamsha for marriage quality.
-What is the nature of this person's future partner based on the chart?
-What patterns have delayed or complicated their relationships so far?
-${subject.partner ? 'Partner compatibility data has been provided. Run a basic Guna analysis and Dasha overlay.' : ''}
-When does marriage or a committed relationship formalise? Name the dasha, antardasha, and year.
-End with: Bottom line: [marriage or relationship timing in one sentence].
+7th house, its lord, Venus placement, Navamsha quality. Nature of future or current partner. What has shaped their relationship patterns so far. Marriage or commitment timing with dasha, antardasha, and year. ${subject.partner ? 'Partner data provided: run Guna compatibility and Dasha overlay.' : ''} 3 to 4 paragraphs.
+Bottom line: relationship milestone with year.
 
 ## Chapter ${hasQuestion ? '6' : '5'}: Health and Body
-Which organ systems are under stress based on the chart placements?
-What does the Ascendant lord's condition say about the physical constitution?
-What are the two or three most important health actions to take in the next 12 months?
-Name the dasha periods in the next 5 years that require the most physical attention.
-End with: Bottom line: [the one health action that must happen before a specific date].
+Which organ systems are under stress from the chart. Physical constitution from Ascendant lord. Two specific health actions for the next 12 months tied to the current dasha. The one dasha period in the next 5 years requiring most attention. 3 paragraphs maximum.
+Bottom line: one health action with a specific date.
 
 ## Chapter ${hasQuestion ? '7' : '6'}: Karma and Past Life
-What does Ketu describe about the soul's past life experience?
-What specific karmic debt is most active right now?
-What is Rahu asking this person to move toward in this lifetime?
-What is the one repeating pattern in their life that will not stop until they consciously interrupt it?
-End with: Bottom line: [the karmic demand in one direct sentence].
+Ketu sign, house, nakshatra and what past life it describes. The most active karmic debt right now. What Rahu is asking them toward. The one repeating pattern that will not stop until they interrupt it. 3 paragraphs.
+Bottom line: their karmic assignment this lifetime in one direct sentence.
 
 ## Chapter ${hasQuestion ? '8' : '7'}: Your Next 3 Years
-Write a quarter-by-quarter forecast from today through end of ${new Date().getFullYear() + 3}.
-For each quarter, name: the dasha period running, the dominant theme, and one specific recommended action.
-Be concrete. Name months. Name transits. Name planets moving into specific houses.
-End with: Bottom line: [the single most important window in the next 3 years and why].
+Quarter by quarter from today through end of ${new Date().getFullYear() + 3}. For each quarter: dasha period running, dominant theme, one concrete action. Name specific transits and planets moving into specific houses. Keep this tight: one line per quarter.
+Bottom line: the single most important quarter and why.
 
 ## Chapter ${hasQuestion ? '9' : '8'}: Remedies
-Prescribe gemstones based on functional benefics for this Ascendant. For each gemstone: stone name, weight, metal, finger, day to wear, and mantra.
-Prescribe 3 behavioral remedies tied to specific planetary problems in this chart. Not generic. Each remedy must name the planet it addresses and why.
-Prescribe one mantra for the most pressing issue in this chart.
-End with: Bottom line: [the one remedy to begin before a specific date].
+Gemstones for this Ascendant's functional benefics: stone, weight, metal, finger, day, mantra for each. Three behavioral remedies tied to specific planets causing problems in this chart. One mantra for the most pressing issue. 3 paragraphs.
+Bottom line: the first remedy to begin with a specific start date.
 
 ## Chapter ${hasQuestion ? '10' : '9'}: Power Moves
-Write exactly 10 numbered insights about this person's life as it stands right now. Each insight must be specific to their chart, not generic. Each must name a planet, house, or dasha.
-Then write one non-negotiable action to take before the end of this week. Make it specific, behavioural, and tied to the chart.
-End with: Bottom line: [the defining action sentence].
+Exactly 10 numbered insights. Each must name a planet, house, or dasha. Each must be specific to this chart. Then one non-negotiable action to take before the end of this week. Tied to the chart.
+Bottom line: the defining action sentence.
 
 FINAL RULES:
-- No em dashes anywhere in the document. Use commas or full stops instead.
-- No filler phrases: "it is worth noting", "it is important to understand", "delve", "navigate", "tapestry", "in conclusion", "fascinating".
-- Address the person as "you" throughout.
-- The document must read as one story about this specific human, not as a generic astrology report with their name inserted.
-- Every chapter should reference details from previous chapters, creating continuity.
-- The tone is warm, direct, and occasionally confronting. Never apologetic. Never vague.
+- No em dashes. Not one. Use commas or full stops.
+- No filler phrases.
+- Second person throughout.
+- One continuous story. Each chapter references the previous.
+- The person reading this must think: "How did they know that about me."
 
-Begin now with Chapter 1.`;
+Begin with Chapter 1.`;
 }
 
 // ── Build Messages Array (with optional images) ──
@@ -527,21 +505,20 @@ function updateProgressText(msg) {
 
 const SYSTEM_PROMPT = `You are a senior Vedic astrologer, graphologist, and palmist with 30 years of practice. You write the way a brilliant mentor speaks to someone who came to you for real answers: direct, warm, occasionally confronting, always personal. You never sound like a textbook. You never sound like software.
 
-ABSOLUTE WRITING RULES -- these apply to every word you write:
-1. No em dashes anywhere. Use a comma, a full stop, or a new sentence instead.
-2. No AI filler phrases: "it is worth noting", "it is important to understand", "delve into", "navigate", "tapestry", "fascinating", "in conclusion", "as we can see", "it is interesting that".
-3. Every claim cites a specific planet, house, nakshatra, or dasha period. Vague statements are prohibited.
-4. Write in the second person. Address the person as "you" throughout.
-5. Short sentences. 15 words maximum per sentence where possible.
-6. Each chapter ends with exactly one "Bottom line:" paragraph. One sentence. Time-specific. Non-negotiable.
-7. Timing predictions name the year and quarter. Not "soon" or "in the coming years."
-8. For handwriting analysis: describe what you physically observe first (baseline, pressure, zones, slant), then interpret.
-9. For palm analysis: describe each major line's length, depth, and breaks before interpreting.
-10. For face analysis: describe each feature (forehead, eyes, nose, lips, jaw) before interpreting.
-11. The tone is that of a 30-year practitioner who has seen 10,000 charts. Confident. Occasionally blunt. Never generic.
-12. The report reads as one continuous story about this specific person, not as 10 separate essays.
-13. Do not repeat the birth chart planetary table in more than one chapter. State it once in Chapter 1 and reference it by name thereafter.
-14. Do not repeat the marriage answer or any other answer across multiple chapters. Answer once, completely, in the designated chapter.`;
+ABSOLUTE RULES. All non-negotiable:
+1. No em dashes. Not one. Use a comma, full stop, or colon instead.
+2. No filler: no "it is worth noting", "delve into", "navigate", "tapestry", "fascinating", "in conclusion", "needless to say".
+3. Every claim cites a specific planet, house, nakshatra, or dasha. No vague generalisations.
+4. Second person throughout. Address the person as "you".
+5. Short sentences. 15 words max.
+6. Each chapter ends with exactly one "Bottom line:" sentence. Specific date or quarter.
+7. Timing: always name year and quarter.
+8. Planetary table in Chapter 1 ONLY. Never repeat it.
+9. No answer repeated across chapters. Once, completely, in the right chapter.
+10. PAGE LIMIT: Entire reading must be 10 to 12 pages maximum. Each chapter: 3 to 5 tight paragraphs. No padding.
+11. Handwriting, palm, face: NO separate observation and interpretation headers. Weave the physical detail into the insight as one flowing paragraph. The person feels the insight, not reads a description.
+12. One continuous story. Each chapter references the previous.
+13. Tone: warm, direct, occasionally confronting. Sound like someone who has read 10,000 charts.`;
 
 const PROVIDERS = {
   claude:     { models: ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001'] },
@@ -645,7 +622,7 @@ async function callOpenRouter(apiKey, prompt, modIds) {
   const model = getSelectedModel() || 'meta-llama/llama-3.3-70b-instruct:free';
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + safeKey, 'HTTP-Referer': window.location.origin, 'X-Title': 'Jyotish Vedic Reading' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + safeKey, 'HTTP-Referer': window.location.origin, 'X-Title': 'Tatva Vedic Reading' },
     body: JSON.stringify({ model, max_tokens: 4000, messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: prompt }] }),
   });
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || 'HTTP '+res.status); }
@@ -811,7 +788,7 @@ function triggerPDFDownload() {
   const subjectName = window._lastReadingSubject?.name || 'Reading';
   const a = document.createElement('a');
   a.href = URL.createObjectURL(_pdfBlob);
-  a.download = 'Jyotish-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
+  a.download = 'Tatva-' + subjectName.replace(/\s+/g,'-') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
   a.click();
 }
 
@@ -860,7 +837,7 @@ async function buildAndShowPDF(rawText, subject) {
     doc.setFont('helvetica','normal');
     doc.setFontSize(7);
     doc.setTextColor(...DIM);
-    doc.text('JYOTISH  ·  VEDIC LIFE READING', mL, H - 9);
+    doc.text('TATVA  ·  VEDIC LIFE READING', mL, H - 9);
     doc.text(String(n) + ' / ' + String(total), W - mR, H - 9, { align: 'right' });
   }
 
@@ -1017,7 +994,7 @@ async function buildAndShowPDF(rawText, subject) {
   doc.setFontSize(9);
   doc.setTextColor(...DIM);
   doc.setCharSpace(3);
-  doc.text('Jyotish', W/2, 55, { align: 'center' });
+  doc.text('Tatva', W/2, 55, { align: 'center' });
   doc.setCharSpace(0);
 
   // Big title
@@ -1157,471 +1134,12 @@ async function buildAndShowPDF(rawText, subject) {
   document.getElementById('result-tabs').innerHTML = '';
 }
 
-async function exportPDF() {
-  if (!Object.keys(readingResults).length) return;
-
-  const btn = document.getElementById('pdf-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Building PDF...';
-
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const W = 210, H = 297;
-    const mL = 16, mR = 16, mT = 18, mB = 22;
-    const cW = W - mL - mR;
-
-    // ── Colour palette ──
-    const BG         = [8,   5,  18];
-    const GOLD       = [196, 169, 125];
-    const GOLD_LT    = [232, 213, 163];
-    const CREAM      = [210, 200, 178];
-    const CARD_BG    = [16,  10,  32];
-    const RULE_COL   = [48,  38,  72];
-    const ACCENT     = [138, 180, 160];
-    const DIM        = [100,  88,  70];
-
-    const subjectName = document.getElementById('f-name').value.trim() || 'Subject';
-    const subjectDOB  = document.getElementById('f-dob').value.trim() || '';
-    const today       = new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
-    const modules     = Object.values(readingResults);
-
-    // ── Helpers ──
-    function fillBG() {
-      doc.setFillColor(...BG);
-      doc.rect(0, 0, W, H, 'F');
-    }
-
-    function goldRule(y, alpha) {
-      doc.setDrawColor(...GOLD);
-      doc.setLineWidth(0.25);
-      doc.line(mL, y, W - mR, y);
-    }
-
-    function dimRule(y) {
-      doc.setDrawColor(...RULE_COL);
-      doc.setLineWidth(0.15);
-      doc.line(mL, y, W - mR, y);
-    }
-
-    function starDots() {
-      const pts = [[22,15],[185,25],[55,278],[162,265],[193,52],[28,245],[105,10],[172,282],[80,140],[140,155]];
-      doc.setFillColor(255,255,255);
-      pts.forEach(([x,y]) => doc.circle(x, y, 0.35, 'F'));
-    }
-
-    function pageFooter(n, total) {
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(6.5);
-      doc.setTextColor(...DIM);
-      doc.text('JYOTISH  •  VEDIC MASTER READING', mL, H - 11);
-      doc.text(String(n) + ' / ' + String(total), W - mR, H - 11, {align:'right'});
-      goldRule(H - 14);
-    }
-
-    // ── Strip all markdown from raw AI text ──
-    function cleanText(raw) {
-      return raw
-        .replace(/\r\n/g, '\n')
-        .replace(/---+/g, '')          // remove horizontal rules
-        .replace(/===+/g, '')
-        .replace(/\*\*(.*?)\*\*/g, '$1')  // strip bold markers, keep text
-        .replace(/\*(.*?)\*/g, '$1')      // strip italic markers
-        .replace(/^#{1,6}\s*/gm, '')      // strip all # headings
-        .replace(/`{1,3}[^`]*`{1,3}/g, '') // strip code
-        .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
-    }
-
-    // ── Parse cleaned lines into typed blocks ──
-    function parseBlocks(cleanedText) {
-      const lines = cleanedText.split('\n');
-      const blocks = [];
-
-      lines.forEach(raw => {
-        const line = raw.trimEnd();
-        const t = line.trim();
-        if (!t) { blocks.push({type:'gap'}); return; }
-
-        // Detect heading-like lines: originally ## or ### (already stripped)
-        // We rely on post-clean structural cues: ALL CAPS short lines, or lines ending with ':'
-        if (/^bottom line:?\s*/i.test(t)) {
-          blocks.push({type:'bottomline', text: t.replace(/^bottom line:?\s*/i,'').trim()});
-          return;
-        }
-
-        // Numbered list item
-        if (/^\d{1,2}\.\s/.test(t)) {
-          const num = t.match(/^(\d{1,2}\.)/)[1];
-          blocks.push({type:'numbered', num, text: t.replace(/^\d{1,2}\.\s/,'').trim()});
-          return;
-        }
-
-        // Bullet
-        if (/^[-•*]\s/.test(t)) {
-          blocks.push({type:'bullet', text: t.replace(/^[-•*]\s/,'').trim()});
-          return;
-        }
-
-        // Short line in ALL CAPS or title case that reads like a heading
-        if (t.length < 80 && /^[A-Z][A-Z\s&:()\/0-9-]+$/.test(t)) {
-          blocks.push({type:'h2', text: t});
-          return;
-        }
-
-        // Sub-heading: title case, short, not a sentence
-        if (t.length < 70 && !t.endsWith('.') && /^[A-Z]/.test(t) && (t.split(' ').length <= 7)) {
-          // Could be a heading or just a short sentence — treat short non-sentence lines as h3
-          blocks.push({type:'h3', text: t});
-          return;
-        }
-
-        // Normal paragraph text
-        blocks.push({type:'para', text: t});
-      });
-
-      // Collapse consecutive gaps
-      const merged = [];
-      blocks.forEach(b => {
-        if (b.type === 'gap' && merged.length && merged[merged.length-1].type === 'gap') return;
-        merged.push(b);
-      });
-      return merged;
-    }
-
-    // ── Render one block onto the doc, return new y ──
-    function renderBlock(block, y, pageNum, totalPages) {
-      const LINE_H = 5.2;
-
-      function checkOverflow(needed) {
-        if (y + needed > H - mB - 6) {
-          pageFooter(pageNum, totalPages);
-          doc.addPage();
-          fillBG();
-          starDots();
-          y = mT + 4;
-          // continuation sub-bar
-          doc.setFillColor(...CARD_BG);
-          doc.rect(0, 0, W, 12, 'F');
-          doc.setFont('helvetica','italic');
-          doc.setFontSize(7);
-          doc.setTextColor(...GOLD);
-          doc.text('continued...', mL, 8.5);
-          goldRule(12);
-          y = 20;
-        }
-        return y;
-      }
-
-      switch(block.type) {
-        case 'gap':
-          y += 2.5;
-          break;
-
-        case 'h2': {
-          y = checkOverflow(14);
-          y += 4;
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(11);
-          doc.setTextColor(...GOLD_LT);
-          const wrapped = doc.splitTextToSize(block.text, cW);
-          wrapped.forEach(wl => { doc.text(wl, mL, y); y += 6.5; });
-          dimRule(y);
-          y += 4;
-          break;
-        }
-
-        case 'h3': {
-          y = checkOverflow(10);
-          y += 3;
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(9.5);
-          doc.setTextColor(...GOLD);
-          const wrapped = doc.splitTextToSize(block.text, cW);
-          wrapped.forEach(wl => { doc.text(wl, mL, y); y += 5.5; });
-          y += 1;
-          break;
-        }
-
-        case 'bottomline': {
-          const textLines = doc.setFont('helvetica','normal') || true;
-          const wrapped = doc.splitTextToSize(block.text, cW - 12);
-          const boxH = 10 + wrapped.length * 5.5;
-          y = checkOverflow(boxH + 8);
-          y += 4;
-          // dark card bg
-          doc.setFillColor(12, 8, 26);
-          doc.roundedRect(mL, y - 3, cW, boxH, 1.5, 1.5, 'F');
-          // gold left bar
-          doc.setFillColor(...GOLD);
-          doc.rect(mL, y - 3, 2.5, boxH, 'F');
-          // label
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(6.5);
-          doc.setTextColor(...GOLD);
-          doc.text('BOTTOM LINE', mL + 6, y + 2.5);
-          // content
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(9.5);
-          doc.setTextColor(...GOLD_LT);
-          wrapped.forEach(wl => { y += 5.5; doc.text(wl, mL + 6, y); });
-          y += boxH - wrapped.length * 5.5 + 4;
-          break;
-        }
-
-        case 'numbered': {
-          y = checkOverflow(8);
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(8.5);
-          doc.setTextColor(...GOLD);
-          doc.text(block.num, mL + 1, y);
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(9);
-          doc.setTextColor(...CREAM);
-          const wrapped = doc.splitTextToSize(block.text, cW - 10);
-          wrapped.forEach((wl, i) => {
-            y = checkOverflow(6);
-            doc.text(wl, mL + 9, y);
-            if (i < wrapped.length - 1) y += LINE_H;
-          });
-          y += LINE_H + 1;
-          break;
-        }
-
-        case 'bullet': {
-          y = checkOverflow(8);
-          doc.setFont('helvetica','bold');
-          doc.setFontSize(10);
-          doc.setTextColor(...GOLD);
-          doc.text('•', mL + 1, y);
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(9);
-          doc.setTextColor(...CREAM);
-          const wrapped = doc.splitTextToSize(block.text, cW - 9);
-          wrapped.forEach((wl, i) => {
-            y = checkOverflow(6);
-            doc.text(wl, mL + 7, y);
-            if (i < wrapped.length - 1) y += LINE_H;
-          });
-          y += LINE_H + 0.5;
-          break;
-        }
-
-        case 'para':
-        default: {
-          doc.setFont('helvetica','normal');
-          doc.setFontSize(9);
-          doc.setTextColor(...CREAM);
-          const wrapped = doc.splitTextToSize(block.text, cW);
-          wrapped.forEach(wl => {
-            y = checkOverflow(6);
-            doc.text(wl, mL, y);
-            y += LINE_H;
-          });
-          y += 1.5;
-          break;
-        }
-      }
-
-      return y;
-    }
-
-    const totalPages = modules.length + 2; // cover + TOC + module pages (approx)
-
-    // ──────────── COVER PAGE ────────────
-    fillBG();
-    starDots();
-
-    // purple glow blob (layered rects to fake blur)
-    [[70,35,130,0.18],[70,35,130,0.12],[70,35,130,0.07]].forEach(([r,g,b,a]) => {
-      doc.setFillColor(r,g,b);
-      doc.ellipse(W*0.38, 75, 55, 38, 'F');
-    });
-
-    // Moon glyph
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(52);
-    doc.setTextColor(...GOLD);
-    doc.text('☽', W/2, 72, {align:'center'});
-
-    // Brand
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...GOLD);
-    doc.setCharSpace(3.5);
-    doc.text('JYOTISH', W/2, 87, {align:'center'});
-    doc.setCharSpace(0);
-
-    // Title
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(22);
-    doc.setTextColor(...GOLD_LT);
-    doc.text('Vedic Master Reading', W/2, 105, {align:'center'});
-
-    // Subtitle
-    doc.setFont('helvetica','italic');
-    doc.setFontSize(12);
-    doc.setTextColor(...GOLD);
-    doc.text('Your Complete Cosmic Blueprint', W/2, 115, {align:'center'});
-
-    goldRule(121);
-
-    // Subject name
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(17);
-    doc.setTextColor(...GOLD_LT);
-    doc.text(subjectName, W/2, 140, {align:'center'});
-
-    if (subjectDOB) {
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
-      doc.setTextColor(...GOLD);
-      doc.text('Born ' + subjectDOB, W/2, 150, {align:'center'});
-    }
-
-    // Module count badge
-    doc.setFillColor(...CARD_BG);
-    doc.roundedRect(W/2 - 30, 160, 60, 14, 2, 2, 'F');
-    goldRule(160); // top of badge
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...GOLD);
-    doc.text(modules.length + ' MODULES  •  ' + today, W/2, 168, {align:'center'});
-
-    // Footer disclaimer
-    goldRule(H - 26);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(6.5);
-    doc.setTextColor(...DIM);
-    doc.text('For self-awareness and strategic insight only. Not medical, legal, or financial advice.', W/2, H - 17, {align:'center', maxWidth: cW});
-    doc.text('Page 1 / ' + totalPages, W/2, H - 10, {align:'center'});
-
-    // ──────────── TABLE OF CONTENTS ────────────
-    doc.addPage();
-    fillBG();
-    starDots();
-
-    // TOC header bar
-    doc.setFillColor(...CARD_BG);
-    doc.rect(0, 0, W, 26, 'F');
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...GOLD);
-    doc.setCharSpace(3);
-    doc.text('CONTENTS', mL, 16);
-    doc.setCharSpace(0);
-    goldRule(26);
-
-    let tocY = 38;
-    modules.forEach((m, i) => {
-      const num = String(i + 1).padStart(2, '0');
-
-      // alternating row tint
-      if (i % 2 === 0) {
-        doc.setFillColor(14, 9, 28);
-        doc.rect(mL - 2, tocY - 5, cW + 4, 9, 'F');
-      }
-
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(7.5);
-      doc.setTextColor(...GOLD);
-      doc.text(num, mL, tocY);
-
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(...CREAM);
-      doc.text(m.name, mL + 9, tocY);
-
-      // page number on right
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(...DIM);
-      doc.text(String(i + 3), W - mR, tocY, {align:'right'});
-
-      tocY += 10;
-
-      if (tocY > H - mB - 10) {
-        pageFooter(2, totalPages);
-        doc.addPage(); fillBG(); starDots(); tocY = 30;
-      }
-    });
-
-    pageFooter(2, totalPages);
-
-    // ──────────── MODULE PAGES ────────────
-    modules.forEach((mod, idx) => {
-      doc.addPage();
-      fillBG();
-      starDots();
-
-      const pageNum = idx + 3;
-
-      // Module header bar
-      doc.setFillColor(...CARD_BG);
-      doc.rect(0, 0, W, 30, 'F');
-
-      // Gold left accent bar on header
-      doc.setFillColor(...GOLD);
-      doc.rect(0, 0, 3, 30, 'F');
-
-      // Module number
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(7.5);
-      doc.setTextColor(...GOLD);
-      doc.setCharSpace(2);
-      doc.text('MODULE ' + String(idx + 1).padStart(2,'0'), mL + 2, 12);
-      doc.setCharSpace(0);
-
-      // Module name
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(13);
-      doc.setTextColor(...GOLD_LT);
-      const nameLine = doc.splitTextToSize(mod.name, cW - 20);
-      nameLine.forEach((nl, ni) => doc.text(nl, mL + 2, 22 + ni * 6));
-
-      goldRule(30);
-
-      // Parse and render content
-      const cleaned = cleanText(mod.text);
-      const blocks  = parseBlocks(cleaned);
-
-      let y = 42;
-
-      blocks.forEach(block => {
-        y = renderBlock(block, y, pageNum, totalPages);
-      });
-
-      pageFooter(pageNum, totalPages);
-    });
-
-    // ── Generate blob for iframe preview ──
-    const pdfOutput = doc.output('blob');
-    _pdfBlob = pdfOutput;
-
-    const pdfUrl = URL.createObjectURL(pdfOutput);
-    const previewSection = document.getElementById('pdf-preview-section');
-    const iframe = document.getElementById('pdf-iframe');
-
-    if (previewSection && iframe) {
-      iframe.src = pdfUrl;
-      previewSection.style.display = 'block';
-      previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-  } catch (err) {
-    console.error('PDF error:', err);
-    alert('PDF generation failed: ' + err.message);
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '<span class="pdf-icon">↓</span> Generate PDF';
-}
 
 
 
 function exportReading() {
   const lines = [];
-  lines.push('JYOTISH  -  VEDIC MASTER READING');
+  lines.push('TATVA  -  VEDIC MASTER READING');
   lines.push('Generated: ' + new Date().toLocaleString());
   lines.push('='.repeat(60));
   Object.values(readingResults).forEach(r => {
@@ -1683,7 +1201,7 @@ function initiateRazorpay() {
     key: RAZORPAY_KEY,
     amount: 99900,
     currency: 'INR',
-    name: 'Jyotish',
+    name: 'Tatva',
     description: 'Vedic Master Reading — 23 Modules',
     prefill: { name, email: email || '' },
     theme: { color: '#c4a55a' },
@@ -2118,7 +1636,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTimeDropdowns('f-tob-h', 'f-tob-m');
   initTimeDropdowns('f-ptob-h', 'f-ptob-m');
   renderProviderTabs();
-  // No module overview grid or chips needed
 });
 
 
@@ -2184,7 +1701,7 @@ function initiateRazorpay() {
     key: RAZORPAY_KEY,
     amount: 99900, // ₹999 in paise
     currency: 'INR',
-    name: 'Jyotish AI',
+    name: 'Tatva',
     description: 'Vedic Master Reading — 23 Modules',
     image: 'https://jyotish-ai.netlify.app/logo.png',
     prefill: {

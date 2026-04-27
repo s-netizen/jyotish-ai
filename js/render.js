@@ -1,4 +1,4 @@
-/* ── Jyotish Rich Renderer ── */
+/* ── Tatva Rich Renderer ── */
 
 // ── Planet metadata ──
 const PLANET_META = {
