@@ -189,13 +189,13 @@
     </div>
 
     <div class="hiw-stats">
-      <div class="hiw-stat"><span class="hiw-stat-num">23</span><span class="hiw-stat-label">MODULES</span></div>
+      <div class="hiw-stat"><span class="hiw-stat-num">20+</span><span class="hiw-stat-label">PAGE REPORT</span></div>
       <div class="hiw-stat-divider">·</div>
-      <div class="hiw-stat"><span class="hiw-stat-num">25+</span><span class="hiw-stat-label">PAGE REPORT</span></div>
+      <div class="hiw-stat"><span class="hiw-stat-num">100%</span><span class="hiw-stat-label">PERSONALISED</span></div>
       <div class="hiw-stat-divider">·</div>
-      <div class="hiw-stat"><span class="hiw-stat-num">4–5</span><span class="hiw-stat-label">HR DELIVERY</span></div>
+      <div class="hiw-stat"><span class="hiw-stat-num">4</span><span class="hiw-stat-label">SYSTEMS READ</span></div>
       <div class="hiw-stat-divider">·</div>
-      <div class="hiw-stat"><span class="hiw-stat-num">₹999</span><span class="hiw-stat-label">ONE-TIME</span></div>
+      <div class="hiw-stat"><span class="hiw-stat-num">EMAIL</span><span class="hiw-stat-label">DELIVERED</span></div>
     </div>
   </div>
 </section>
@@ -270,43 +270,43 @@
       </div>
     </div>
 
-    <!-- USP bar -->
-    <div class="usp-bar">
-      <div class="usp-item">
-        <span class="usp-icon">✍</span>
-        <span class="usp-text">Handwriting analysis across 18 traits</span>
-      </div>
-      <div class="usp-divider">·</div>
-      <div class="usp-item">
-        <span class="usp-icon">🤚</span>
-        <span class="usp-text">Both palms read separately</span>
-      </div>
-      <div class="usp-divider">·</div>
-      <div class="usp-item">
-        <span class="usp-icon">◉</span>
-        <span class="usp-text">Face reading (Samudrika Shastra)</span>
-      </div>
-      <div class="usp-divider">·</div>
-      <div class="usp-item">
-        <span class="usp-icon">☽</span>
-        <span class="usp-text">Full Vedic birth chart and planetary analysis</span>
-      </div>
-    </div>
   </div>
 </section>
 
 <!-- MAIN FORM -->
 <section class="form-section" id="reading-form">
-  <div class="container-narrow">
-    <p class="section-eyebrow">YOUR READING</p>
-    <h2 class="section-title">Enter Your Details</h2>
-    <p class="form-intro">Fill in your birth data. After payment, your report is crafted and delivered to your email within 4–5 hours.</p>
+  <div class="form-two-col-wrap">
 
-    <!-- ERROR AREA -->
-    <div id="err-area"></div>
+    <!-- LEFT: Info panel -->
+    <div class="form-info-panel">
+      <p class="section-eyebrow">YOUR READING</p>
+      <h2 class="form-info-title">Tell us<br/><em>about you.</em></h2>
+      <p class="form-info-sub">Your exact birth details let us map the position of 9 celestial bodies at your moment of birth. Combined with your handwriting, palms, and face — this is a mathematical map of your soul, not a sun-sign horoscope.</p>
+      <ul class="form-info-bullets">
+        <li><span class="fib-dot">✦</span>Takes 5 minutes to fill</li>
+        <li><span class="fib-dot">✦</span>Covers career, love, timing and remedies</li>
+        <li><span class="fib-dot">✦</span>4 systems read: Vedic chart, palm, handwriting, face</li>
+        <li><span class="fib-dot">✦</span>Delivered to your inbox as a PDF</li>
+        <li><span class="fib-dot">✦</span>Your data stays private. Always.</li>
+      </ul>
+      <div class="form-info-systems">
+        <div class="fis-item"><span class="fis-icon">☽</span><span>Vedic Astrology</span></div>
+        <div class="fis-item"><span class="fis-icon">🤚</span><span>Palmistry</span></div>
+        <div class="fis-item"><span class="fis-icon">✍</span><span>Graphology</span></div>
+        <div class="fis-item"><span class="fis-icon">◉</span><span>Physiognomy</span></div>
+      </div>
+    </div>
 
-    <!-- STEP 1: CORE DATA -->
-    <div class="form-card">
+    <!-- RIGHT: Form panel -->
+    <div class="form-right-panel">
+      <div class="form-panel-inner">
+        <p class="form-panel-title">Get Your Report</p>
+
+        <!-- ERROR AREA -->
+        <div id="err-area"></div>
+
+        <!-- STEP 1: CORE DATA -->
+        <div class="form-card form-card-seq" id="step-1">
       <div class="form-card-header">
         <span class="step-num">01</span>
         <div>
@@ -373,8 +373,8 @@
       </div>
     </div>
 
-    <!-- STEP 2: IMAGE UPLOADS -->
-    <div class="form-card">
+        <!-- STEP 2: IMAGE UPLOADS -->
+        <div class="form-card form-card-seq" id="step-2">
       <div class="form-card-header">
         <span class="step-num">02</span>
         <div>
@@ -449,8 +449,8 @@
       </div>
     </div>
 
-    <!-- STEP 3: PARTNER DETAILS -->
-    <div class="form-card">
+        <!-- STEP 3: PARTNER DETAILS -->
+        <div class="form-card form-card-seq" id="step-3">
       <div class="form-card-header">
         <span class="step-num">03</span>
         <div>
@@ -489,15 +489,12 @@
       </div>
     </div>
 
-    <!-- GENERATE -->
-    <div class="generate-section">
-      <div class="generate-price-row">
-        <span class="generate-price">₹999</span>
-      </div>
-      <button class="btn-generate" id="run-btn" onclick="handleGenerateClick()">
-        <span id="btn-text">Get My Reading</span>
-      </button>
-      <p class="generate-note">Images (handwriting, palm, face) are required for the complete reading. Partner details are optional.</p>
+        <!-- GENERATE -->
+        <div class="generate-section">
+          <button class="btn-generate btn-generate-full" id="run-btn" onclick="handleGenerateClick()">
+            <span id="btn-text">Get My Report · ₹999</span>
+          </button>
+          <p class="generate-note">Images are required. Partner details optional. Report delivered to your email.</p>
     </div>
 
     <!-- RESULTS -->
