@@ -118,17 +118,18 @@ em { font-style: italic; color: var(--gold); }
 .nav {
   position: relative;
   z-index: 100;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 3rem;
+  gap: 1.5rem;
+  padding: 1.25rem 3rem;
   border-bottom: 0.5px solid rgba(196,165,90,0.08);
   backdrop-filter: blur(8px);
   background: rgba(6,8,16,0.3);
 }
 .nav-brand {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 19px;
+  font-size: 22px;
   color: var(--white);
   letter-spacing: 0.04em;
 }
@@ -136,6 +137,9 @@ em { font-style: italic; color: var(--gold); }
   display: flex;
   align-items: center;
   gap: 1.75rem;
+}
+.nav-links-center {
+  justify-content: center;
 }
 .nav-link {
   font-size: 13px;
@@ -169,7 +173,11 @@ em { font-style: italic; color: var(--gold); }
 .nav-mobile a { color: var(--cream); font-size: 16px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; padding: 0.25rem 0; border-bottom: 0.5px solid var(--rule); }
 .nav-mobile .btn-nav-cta { width: 100%; text-align: center; padding: 12px; font-size: 13px; margin-top: 0.25rem; }
 @media (max-width: 768px) {
-  .nav { padding: 1.25rem 1.5rem; }
+  .nav {
+    grid-template-columns: 1fr auto auto;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+  }
   .nav-links { display: none; }
   .nav-hamburger { display: block; }
 }
@@ -259,12 +267,18 @@ em { font-style: italic; color: var(--gold); }
 }
 .hero-trust {
   display: flex;
-  gap: 1.25rem;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 12px;
   font-family: 'DM Mono', monospace;
   color: rgba(212,203,184,0.35);
   flex-wrap: wrap;
   letter-spacing: 0.04em;
+}
+.trust-divider {
+  color: var(--gold);
+  opacity: 0.4;
+  font-size: 8px;
 }
 @media (max-width: 768px) {
   .hero-content { padding: 2.5rem 1.5rem 4rem; max-width: 100%; }
@@ -542,6 +556,12 @@ em { font-style: italic; color: var(--gold); }
   color: var(--gold);
   line-height: 1;
   margin-bottom: 6px;
+}
+/* EMAIL stat should feel like the others */
+.hiw-stat-num.stat-text {
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  font-family: 'DM Mono', monospace;
 }
 .hiw-stat-label {
   font-size: 9px;
