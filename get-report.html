@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0c0f2e" />
+<title>Begin Your Reading — Tatva</title>
+<meta name="description" content="Get your personalised Vedic life reading. Birth chart, handwriting, palm and face analysis. Delivered in 4–5 hours." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css?v=3" />
+<style>
+/* ── Get Report Page Specific Styles ── */
+.gr-page { min-height: 100vh; background: var(--navy); }
+
+/* Progress bar */
+.gr-progress {
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  background: var(--navy);
+  border-bottom: 0.5px solid var(--rule);
+  padding: 0;
+}
+
+.gr-progress-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.gr-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  position: relative;
+}
+
+.gr-step-item:last-child { flex: 0; }
+
+.gr-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  color: var(--cream-dim);
+  background: var(--navy);
+  transition: all 0.3s;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.gr-step-item.active .gr-step-circle {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(196,165,90,0.08);
+}
+
+.gr-step-item.done .gr-step-circle {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.gr-step-label {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  color: var(--cream-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.gr-step-item.active .gr-step-label { color: var(--gold); }
+.gr-step-item.done .gr-step-label { color: var(--cream-dim); }
+
+.gr-step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  margin: 0 8px;
+  transition: background 0.3s;
+}
+
+.gr-step-line.done { background: var(--gold); opacity: 0.4; }
+
+/* Step panels */
+.gr-body {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 120px;
+}
+
+.gr-step-panel {
+  display: none;
+  animation: fadeInUp 0.3s ease;
+}
+
+.gr-step-panel.active { display: block; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gr-step-header {
+  margin-bottom: 36px;
+}
+
+.gr-step-eyebrow {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.gr-step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.gr-step-sub {
+  font-size: 14px;
+  color: var(--cream-dim);
+  line-height: 1.7;
+}
+
+/* Continue button */
+.gr-continue-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  margin-top: 32px;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gr-continue-btn:hover { background: var(--gold-lt); transform: translateY(-1px); }
+.gr-continue-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.gr-back-btn {
+  background: transparent;
+  border: 0.5px solid var(--rule);
+  color: var(--cream-dim);
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  margin-top: 12px;
+  width: 100%;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.gr-back-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Step 3 skip button */
+.gr-skip-btn {
+  background: transparent;
+  border: none;
+  color: var(--cream-dim);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: 16px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.gr-skip-btn:hover { color: var(--gold); }
+
+/* Optional badge */
+.gr-optional-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.12em;
+  color: rgba(196,165,90,0.4);
+  border: 0.5px solid rgba(196,165,90,0.2);
+  border-radius: 3px;
+  padding: 2px 7px;
+  vertical-align: middle;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+
+/* Upload grid for step 2 */
+.gr-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Upload completion indicator */
+.upload-check {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: var(--gold);
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.upload-box.uploaded .upload-check { display: flex; }
+.upload-box.uploaded { border-color: rgba(196,165,90,0.5); }
+
+/* Payment step */
+.gr-payment-summary {
+  background: var(--navy-card);
+  border: 0.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.gr-payment-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.gr-payment-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--cream-dim);
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--rule);
+}
+
+.gr-payment-row:last-child { border-bottom: none; }
+
+.gr-payment-row.total {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 16px;
+  padding-top: 12px;
+}
+
+.gr-payment-row.total span:last-child { color: var(--gold); }
+
+.gr-what-included {
+  margin-bottom: 24px;
+}
+
+.gr-included-label {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.gr-included-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gr-included-list li {
+  font-size: 13px;
+  color: var(--cream-dim);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+
+.gr-included-list li::before {
+  content: '✦';
+  color: var(--gold);
+  font-size: 8px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.btn-pay-full {
+  width: 100%;
+  padding: 18px;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-bottom: 12px;
+}
+
+.btn-pay-full:hover { background: var(--gold-lt); transform: translateY(-1px); }
+.btn-pay-full:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.gr-secure-note {
+  text-align: center;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--cream-dim);
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+
+/* Error area */
+.gr-err {
+  background: rgba(217,95,95,0.08);
+  border: 0.5px solid rgba(217,95,95,0.3);
+  border-radius: 5px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #e89090;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.gr-err.visible { display: block; }
+
+/* Divider */
+.gr-divider {
+  height: 0.5px;
+  background: var(--rule);
+  margin: 28px 0;
+}
+
+@media (max-width: 640px) {
+  .gr-upload-grid { grid-template-columns: 1fr; }
+  .gr-progress-inner { padding: 16px 12px; gap: 0; }
+  .gr-step-label { display: none; }
+  .gr-body { padding: 32px 16px 100px; }
+}
+</style>
+</head>
+<body class="gr-page">
+
+<!-- NAV (same as index) -->
+<header class="hero" style="min-height:auto;padding-bottom:0;">
+  <nav class="nav">
+    <a href="/" class="nav-brand" style="text-decoration:none;">☽ Tatva</a>
+    <div class="nav-links">
+      <a href="/#how-it-works" class="nav-link">How it works</a>
+      <a href="/#whats-inside" class="nav-link">What's Inside</a>
+      <a href="/#pricing" class="nav-link">Pricing</a>
+      <a href="/#faq" class="nav-link">FAQ</a>
+    </div>
+    <button class="nav-hamburger" onclick="toggleMobileNav()" id="hamburger">☰</button>
+  </nav>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="/#how-it-works" onclick="toggleMobileNav()">How it works</a>
+    <a href="/#whats-inside" onclick="toggleMobileNav()">What's Inside</a>
+    <a href="/#pricing" onclick="toggleMobileNav()">Pricing</a>
+    <a href="/#faq" onclick="toggleMobileNav()">FAQ</a>
+  </div>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="gr-progress">
+  <div class="gr-progress-inner">
+    <div class="gr-step-item active" id="prog-1">
+      <div class="gr-step-circle">1</div>
+      <span class="gr-step-label">Your Details</span>
+    </div>
+    <div class="gr-step-line" id="line-1"></div>
+    <div class="gr-step-item" id="prog-2">
+      <div class="gr-step-circle">2</div>
+      <span class="gr-step-label">Your Photos</span>
+    </div>
+    <div class="gr-step-line" id="line-2"></div>
+    <div class="gr-step-item" id="prog-3">
+      <div class="gr-step-circle">3</div>
+      <span class="gr-step-label">Partner</span>
+    </div>
+    <div class="gr-step-line" id="line-3"></div>
+    <div class="gr-step-item" id="prog-4">
+      <div class="gr-step-circle">4</div>
+      <span class="gr-step-label">Payment</span>
+    </div>
+  </div>
+</div>
+
+<!-- FORM BODY -->
+<div class="gr-body">
+  <div id="gr-err" class="gr-err"></div>
+
+  <!-- STEP 1: Core Data -->
+  <div class="gr-step-panel active" id="panel-1">
+    <div class="gr-step-header">
+      <p class="gr-step-eyebrow">Step 1 of 4</p>
+      <h1 class="gr-step-title">Tell us about you.</h1>
+      <p class="gr-step-sub">Your exact birth details let us map the position of 9 celestial bodies at the moment you were born.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="field full">
+        <label for="f-email">EMAIL ADDRESS <span class="req">*</span></label>
+        <input type="email" id="f-email" placeholder="your@email.com — your report arrives here" />
+        <p class="field-hint">Your PDF report will be delivered to this inbox within 4–5 hours.</p>
+      </div>
+      <div class="field">
+        <label for="f-name">FULL NAME <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="As used in daily life" />
+      </div>
+      <div class="field">
+        <label for="f-phone">PHONE NUMBER <span class="req">*</span></label>
+        <input type="tel" id="f-phone" placeholder="+91 XXXXX XXXXX" />
+      </div>
+      <div class="field">
+        <label for="f-dob">DATE OF BIRTH <span class="req">*</span></label>
+        <input type="text" id="f-dob" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>EXACT TIME OF BIRTH <span class="req">*</span></label>
+        <div class="time-selects">
+          <select id="f-tob-h" class="time-sel"><option value="">HH</option></select>
+          <span class="time-colon">:</span>
+          <select id="f-tob-m" class="time-sel"><option value="">MM</option></select>
+          <select id="f-tob-ampm" class="time-sel time-sel-ampm">
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-pob">PLACE OF BIRTH <span class="req">*</span></label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="f-pob" placeholder="City, State, Country" autocomplete="off" oninput="cityAutocomplete('f-pob','ac-pob')" />
+          <div class="ac-dropdown" id="ac-pob"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-city">CURRENT CITY <span class="req">*</span></label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="f-city" placeholder="Where you live now" autocomplete="off" oninput="cityAutocomplete('f-city','ac-city')" />
+          <div class="ac-dropdown" id="ac-city"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-career">CAREER / INDUSTRY <span class="req">*</span></label>
+        <input type="text" id="f-career" placeholder="e.g. Software Engineer, Technology" />
+      </div>
+      <div class="field full">
+        <label for="f-question">YOUR MOST PRESSING QUESTION <span class="req">*</span></label>
+        <textarea id="f-question" rows="3" placeholder="What question have you been carrying for months, hoping someone would finally answer honestly?"></textarea>
+        <p class="field-hint">The more you share, the deeper your reading.</p>
+      </div>
+    </div>
+
+    <button class="gr-continue-btn" onclick="goToStep(2)">
+      Continue to Your Photos →
+    </button>
+  </div>
+
+  <!-- STEP 2: Photos -->
+  <div class="gr-step-panel" id="panel-2">
+    <div class="gr-step-header">
+      <p class="gr-step-eyebrow">Step 2 of 4</p>
+      <h1 class="gr-step-title">Your photos.</h1>
+      <p class="gr-step-sub">Most Vedic reports analyse only your birth chart. Your handwriting, palms, and face add three more layers of precision that no chart alone can provide.</p>
+    </div>
+
+    <div class="upload-usp">
+      <p class="upload-usp-text">Each image unlocks a different system: graphology reads 18 personality traits, palmistry shows your karmic blueprint and active destiny, Samudrika Shastra reads your face for physiognomic markers. All four are required for the complete reading.</p>
+    </div>
+
+    <div class="gr-upload-grid">
+      <div class="upload-box" id="ub-handwriting" style="position:relative;">
+        <div class="upload-check">✓</div>
+        <input type="file" id="img-handwriting" accept="image/*" onchange="handleUpload('handwriting', this)" />
+        <div class="upload-inner" onclick="document.getElementById('img-handwriting').click()">
+          <div class="upload-icon">✍</div>
+          <div class="upload-title-row">
+            <span class="upload-name">Handwriting Sample</span>
+            <span class="upload-tooltip-icon" tabindex="0">?
+              <span class="upload-tooltip-box">Write 5–6 lines of natural cursive on unlined paper. Use a pen. Include your signature. Photograph in good light, flat on a surface, no shadows.</span>
+            </span>
+          </div>
+          <div class="upload-sub">5–6 lines · natural script · include signature</div>
+          <div class="upload-meta">GRAPHOLOGY · REQUIRED</div>
+          <div class="upload-preview" id="prev-handwriting"></div>
+        </div>
+      </div>
+
+      <div class="upload-box" id="ub-palm-left" style="position:relative;">
+        <div class="upload-check">✓</div>
+        <input type="file" id="img-palm-left" accept="image/*" onchange="handleUpload('palmLeft', this)" />
+        <div class="upload-inner" onclick="document.getElementById('img-palm-left').click()">
+          <div class="upload-icon">🤚</div>
+          <div class="upload-title-row">
+            <span class="upload-name">Left Palm</span>
+            <span class="upload-tooltip-icon" tabindex="0">?
+              <span class="upload-tooltip-box">Left hand = karmic blueprint. Hold flat, palm up, fingers together. Natural daylight, no flash. Full palm from wrist to fingertips.</span>
+            </span>
+          </div>
+          <div class="upload-sub">Flat · palm up · full hand visible</div>
+          <div class="upload-meta">PALMISTRY · REQUIRED</div>
+          <div class="upload-preview" id="prev-palm-left"></div>
+        </div>
+      </div>
+
+      <div class="upload-box" id="ub-palm-right" style="position:relative;">
+        <div class="upload-check">✓</div>
+        <input type="file" id="img-palm-right" accept="image/*" onchange="handleUpload('palmRight', this)" />
+        <div class="upload-inner" onclick="document.getElementById('img-palm-right').click()">
+          <div class="upload-icon" style="transform:scaleX(-1);">🤚</div>
+          <div class="upload-title-row">
+            <span class="upload-name">Right Palm</span>
+            <span class="upload-tooltip-icon" tabindex="0">?
+              <span class="upload-tooltip-box">Right hand = active destiny. Hold flat, palm up, fingers together. Natural daylight. Both hands give the most complete reading.</span>
+            </span>
+          </div>
+          <div class="upload-sub">Flat · palm up · full hand visible</div>
+          <div class="upload-meta">PALMISTRY · REQUIRED</div>
+          <div class="upload-preview" id="prev-palm-right"></div>
+        </div>
+      </div>
+
+      <div class="upload-box" id="ub-face" style="position:relative;">
+        <div class="upload-check">✓</div>
+        <input type="file" id="img-face" accept="image/*" onchange="handleUpload('face', this)" />
+        <div class="upload-inner" onclick="document.getElementById('img-face').click()">
+          <div class="upload-icon">◉</div>
+          <div class="upload-title-row">
+            <span class="upload-name">Face Photo</span>
+            <span class="upload-tooltip-icon" tabindex="0">?
+              <span class="upload-tooltip-box">Front-facing, natural daylight, no filters, no sunglasses. Neutral expression. Hair away from face. Full face from chin to forehead.</span>
+            </span>
+          </div>
+          <div class="upload-sub">Front-facing · natural light · neutral expression</div>
+          <div class="upload-meta">PHYSIOGNOMY · REQUIRED</div>
+          <div class="upload-preview" id="prev-face"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="gr-continue-btn" id="step2-continue" onclick="goToStep(3)" disabled>
+      Continue to Partner Details →
+    </button>
+    <button class="gr-back-btn" onclick="goToStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3: Partner (Optional) -->
+  <div class="gr-step-panel" id="panel-3">
+    <div class="gr-step-header">
+      <p class="gr-step-eyebrow">Step 3 of 4</p>
+      <h1 class="gr-step-title">Partner details. <span class="gr-optional-badge">Optional</span></h1>
+      <p class="gr-step-sub">Only needed if you want a marriage compatibility analysis included in your reading. You can skip this and go straight to payment.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="f-partner">PARTNER'S FULL NAME</label>
+        <input type="text" id="f-partner" placeholder="For compatibility analysis" />
+      </div>
+      <div class="field">
+        <label for="f-pdob">PARTNER'S DATE OF BIRTH</label>
+        <input type="text" id="f-pdob" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label for="f-ppob">PARTNER'S PLACE OF BIRTH</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="f-ppob" placeholder="City, State, Country" autocomplete="off" oninput="cityAutocomplete('f-ppob','ac-ppob')" />
+          <div class="ac-dropdown" id="ac-ppob"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>PARTNER'S TIME OF BIRTH</label>
+        <div class="time-selects">
+          <select id="f-ptob-h" class="time-sel"><option value="">HH</option></select>
+          <span class="time-colon">:</span>
+          <select id="f-ptob-m" class="time-sel"><option value="">MM</option></select>
+          <select id="f-ptob-ampm" class="time-sel time-sel-ampm">
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="gr-continue-btn" onclick="goToStep(4)">
+      Continue to Payment →
+    </button>
+    <button class="gr-skip-btn" onclick="goToStep(4)">Skip — go straight to payment</button>
+    <button class="gr-back-btn" onclick="goToStep(2)">← Back</button>
+  </div>
+
+  <!-- STEP 4: Payment -->
+  <div class="gr-step-panel" id="panel-4">
+    <div class="gr-step-header">
+      <p class="gr-step-eyebrow">Step 4 of 4</p>
+      <h1 class="gr-step-title">Almost there.</h1>
+      <p class="gr-step-sub">Review your order and complete payment. Your reading will be in your inbox within 4–5 hours.</p>
+    </div>
+
+    <div class="gr-payment-summary">
+      <p class="gr-payment-title">Order Summary</p>
+      <div class="gr-payment-row"><span>The Cosmic Blueprint</span><span>₹4,999</span></div>
+      <div class="gr-payment-row"><span>Launch Offer (80% off)</span><span style="color:#7DC87D">-₹4,000</span></div>
+      <div class="gr-payment-row total"><span>Total</span><span>₹999</span></div>
+    </div>
+
+    <div class="gr-what-included">
+      <p class="gr-included-label">What's included</p>
+      <ul class="gr-included-list">
+        <li>Full Vedic birth chart — 9 planets, Navamsa D9, Dashamsha D10</li>
+        <li>Handwriting analysis across 18 personality traits</li>
+        <li>Both palms read separately — karmic and active destiny</li>
+        <li>Face reading via Samudrika Shastra</li>
+        <li>Numerology — Moolank, Bhagyank, name correction</li>
+        <li>3-year quarter-by-quarter roadmap</li>
+        <li>Personalised gemstone and behavioural remedies</li>
+        <li>Delivered as a styled PDF to your inbox</li>
+      </ul>
+    </div>
+
+    <button class="btn-pay-full" id="pay-btn" onclick="initiateRazorpay()">
+      Pay ₹999 · Begin My Reading
+    </button>
+    <p class="gr-secure-note">🔒 Secured by Razorpay · 256-bit SSL · UPI · Cards · NetBanking</p>
+    <button class="gr-back-btn" onclick="goToStep(3)">← Back</button>
+  </div>
+
+</div><!-- gr-body -->
+
+<!-- PAYMENT OVERLAY (kept for Razorpay modal) -->
+<div class="auth-overlay" id="payment-overlay" onclick="closePaymentModal(event)">
+  <div class="auth-modal payment-modal" id="payment-modal">
+    <button class="auth-close" onclick="closePaymentModal()">✕</button>
+    <div class="auth-logo">☽</div>
+    <h3 class="auth-title">Complete Your Order</h3>
+    <p class="auth-sub">Vedic Life Reading · Delivered in 4–5 hours</p>
+    <div class="payment-summary">
+      <div class="payment-row"><span>Vedic Life Reading</span><span>₹999</span></div>
+      <div class="payment-row payment-row-total"><span>Total</span><span>₹999</span></div>
+    </div>
+    <button class="btn-razorpay" onclick="initiateRazorpay()">
+      <span>Pay ₹999 with Razorpay</span>
+      <span class="rzp-icons">UPI · Cards · NetBanking · Wallets</span>
+    </button>
+    <p class="payment-secure">🔒 Secured by Razorpay · 256-bit SSL</p>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+<script>
+// ── Step navigation ──
+let currentStep = 1;
+
+function goToStep(n) {
+  const errEl = document.getElementById('gr-err');
+  errEl.classList.remove('visible');
+
+  // Validate before advancing
+  if (n > currentStep) {
+    const err = validateStep(currentStep);
+    if (err) {
+      errEl.textContent = err;
+      errEl.classList.add('visible');
+      errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+
+  // Hide current, show next
+  document.getElementById(`panel-${currentStep}`).classList.remove('active');
+  document.getElementById(`panel-${n}`).classList.add('active');
+
+  // Update progress bar
+  updateProgress(n);
+  currentStep = n;
+
+  // Scroll to top of form
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep(step) {
+  if (step === 1) {
+    const email   = document.getElementById('f-email')?.value.trim();
+    const name    = document.getElementById('f-name')?.value.trim();
+    const phone   = document.getElementById('f-phone')?.value.trim();
+    const dob     = document.getElementById('f-dob')?.value.trim();
+    const tob_h   = document.getElementById('f-tob-h')?.value;
+    const tob_m   = document.getElementById('f-tob-m')?.value;
+    const pob     = document.getElementById('f-pob')?.value.trim();
+    const city    = document.getElementById('f-city')?.value.trim();
+    const career  = document.getElementById('f-career')?.value.trim();
+    const question = document.getElementById('f-question')?.value.trim();
+    const missing = [];
+    if (!email)    missing.push('Email Address');
+    if (!name)     missing.push('Full Name');
+    if (!phone)    missing.push('Phone Number');
+    if (!dob)      missing.push('Date of Birth');
+    if (!tob_h || !tob_m) missing.push('Time of Birth');
+    if (!pob)      missing.push('Place of Birth');
+    if (!city)     missing.push('Current City');
+    if (!career)   missing.push('Career / Industry');
+    if (!question) missing.push('Your Question');
+    if (missing.length) return `Please fill in: ${missing.join(', ')}`;
+  }
+
+  if (step === 2) {
+    const missing = [];
+    if (!uploadedImages.handwriting) missing.push('Handwriting Sample');
+    if (!uploadedImages.palmLeft)    missing.push('Left Palm');
+    if (!uploadedImages.palmRight)   missing.push('Right Palm');
+    if (!uploadedImages.face)        missing.push('Face Photo');
+    if (missing.length) return `Please upload: ${missing.join(', ')}`;
+  }
+
+  return null;
+}
+
+function updateProgress(n) {
+  for (let i = 1; i <= 4; i++) {
+    const item = document.getElementById(`prog-${i}`);
+    item.classList.remove('active', 'done');
+    if (i < n)      item.classList.add('done');
+    else if (i === n) item.classList.add('active');
+
+    // Update circle for done steps
+    const circle = item.querySelector('.gr-step-circle');
+    if (i < n) circle.textContent = '✓';
+    else circle.textContent = i;
+  }
+
+  // Update lines
+  for (let i = 1; i <= 3; i++) {
+    const line = document.getElementById(`line-${i}`);
+    if (i < n) line.classList.add('done');
+    else line.classList.remove('done');
+  }
+}
+
+// Watch uploads to enable continue button on step 2
+function checkStep2Uploads() {
+  const allUploaded = uploadedImages.handwriting &&
+                      uploadedImages.palmLeft &&
+                      uploadedImages.palmRight &&
+                      uploadedImages.face;
+  const btn = document.getElementById('step2-continue');
+  if (btn) btn.disabled = !allUploaded;
+
+  // Mark upload boxes
+  ['handwriting','palmLeft','palmRight','face'].forEach(key => {
+    const boxMap = { handwriting:'ub-handwriting', palmLeft:'ub-palm-left', palmRight:'ub-palm-right', face:'ub-face' };
+    const box = document.getElementById(boxMap[key]);
+    if (box) {
+      if (uploadedImages[key]) box.classList.add('uploaded');
+      else box.classList.remove('uploaded');
+    }
+  });
+}
+
+// Override handleGenerateClick for this page — just go to step 4
+function handleGenerateClick() {
+  goToStep(4);
+}
+
+// Populate time dropdowns
+function populateTimeDropdowns() {
+  const hourSels = ['f-tob-h','f-ptob-h'];
+  const minSels  = ['f-tob-m','f-ptob-m'];
+  hourSels.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    for (let h = 1; h <= 12; h++) {
+      const o = document.createElement('option');
+      o.value = String(h).padStart(2,'0');
+      o.textContent = String(h).padStart(2,'0');
+      sel.appendChild(o);
+    }
+  });
+  minSels.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    for (let m = 0; m < 60; m += 5) {
+      const o = document.createElement('option');
+      o.value = String(m).padStart(2,'0');
+      o.textContent = String(m).padStart(2,'0');
+      sel.appendChild(o);
+    }
+  });
+}
+
+// DOB auto-format
+document.addEventListener('DOMContentLoaded', () => {
+  populateTimeDropdowns();
+
+  const dobInputs = ['f-dob','f-pdob'];
+  dobInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'');
+      if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+      if (v.length >= 6) v = v.slice(0,5) + '/' + v.slice(5,9);
+      this.value = v;
+    });
+  });
+});
+
+// Override the upload handler to trigger step 2 check
+const _origHandleUpload = typeof handleUpload !== 'undefined' ? handleUpload : null;
+document.addEventListener('DOMContentLoaded', () => {
+  // Patch upload handler after app.js loads
+  setTimeout(() => {
+    const inputs = ['img-handwriting','img-palm-left','img-palm-right','img-face'];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('change', () => setTimeout(checkStep2Uploads, 200));
+      }
+    });
+  }, 500);
+});
+
+function toggleMobileNav() {
+  const nav = document.getElementById('nav-mobile');
+  nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+}
+</script>
+</body>
+</html>

@@ -2049,3 +2049,17 @@ em { font-style: italic; color: var(--gold); }
     font-size: 36px;
   }
 }
+
+/* ── btn-hero and btn-pcs as links ── */
+a.btn-hero {
+  display: inline-block;
+  text-decoration: none;
+}
+a.btn-pcs {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+a.btn-nav-cta {
+  text-decoration: none;
+}
