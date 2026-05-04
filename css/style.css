@@ -560,11 +560,11 @@ em { font-style: italic; color: var(--gold); }
   line-height: 1;
   margin-bottom: 6px;
 }
-/* EMAIL stat should feel like the others */
 .hiw-stat-num.stat-text {
-  font-size: 20px;
-  letter-spacing: 0.06em;
+  font-size: 22px;
+  letter-spacing: 0.08em;
   font-family: 'DM Mono', monospace;
+  line-height: 1.55;
 }
 .hiw-stat-label {
   font-size: 9px;
