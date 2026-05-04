@@ -370,10 +370,22 @@
 }
 
 @media (max-width: 640px) {
-  .gr-upload-grid { grid-template-columns: 1fr; }
-  .gr-progress-inner { padding: 16px 12px; gap: 0; }
+  .gr-upload-grid { grid-template-columns: 1fr 1fr; }
+  .gr-progress-inner { padding: 14px 10px; gap: 0; }
   .gr-step-label { display: none; }
-  .gr-body { padding: 32px 16px 100px; }
+  .gr-body { padding: 28px 16px 100px; }
+  .gr-step-title { font-size: 26px; }
+  .gr-step-sub { font-size: 14px; }
+  .gr-continue-btn { font-size: 14px; padding: 15px; }
+  .gr-payment-summary { padding: 16px; }
+  .gr-included-list li { font-size: 13px; }
+  .btn-pay-full { padding: 16px; font-size: 15px; }
+  /* iOS zoom prevention */
+  input, select, textarea { font-size: 16px !important; }
+}
+@media (max-width: 380px) {
+  .gr-upload-grid { grid-template-columns: 1fr; }
+  .gr-step-circle { width: 28px; height: 28px; font-size: 11px; }
 }
 </style>
 </head>

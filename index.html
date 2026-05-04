@@ -405,9 +405,49 @@
   </div>
 </div>
 
+<!-- STICKY MOBILE CTA -->
+<div class="sticky-mobile-cta" id="sticky-cta">
+  <div class="sticky-cta-inner">
+    <div class="sticky-cta-info">
+      <span class="sticky-cta-name">The Cosmic Blueprint</span>
+      <span class="sticky-cta-price">₹999 <s>₹4,999</s></span>
+    </div>
+    <a href="/get-report" class="sticky-cta-btn">Begin My Reading</a>
+  </div>
+</div>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/render.js"></script>
 <script src="js/app.js"></script>
+<script>
+// ── Sticky mobile CTA: show after scrolling past hero ──
+(function() {
+  const bar    = document.getElementById('sticky-cta');
+  if (!bar) return;
+  let shown    = false;
+  let heroH    = 0;
+
+  function getHeroH() {
+    const hero = document.querySelector('.hero');
+    return hero ? hero.offsetHeight * 0.6 : 300;
+  }
+
+  function onScroll() {
+    if (!heroH) heroH = getHeroH();
+    const scrolled = window.scrollY > heroH;
+    if (scrolled && !shown) {
+      bar.classList.add('visible');
+      shown = true;
+    } else if (!scrolled && shown) {
+      bar.classList.remove('visible');
+      shown = false;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function() { heroH = getHeroH(); }, { passive: true });
+})();
+</script>
 </body>
 </html>
